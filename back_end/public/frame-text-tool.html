@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Frame Text Tool</title>
+  <link rel="icon" href="Logo.jpg" type="image/x-icon">  
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+  <style>
+    :root{
+      /* ===== Brand palette (Red + Beige are primary) ===== */
+      --brand-red:        #DC2626;   /* primary red */
+      --brand-red-700:    #B91C1C;   /* hover/depth */
+      --brand-red-900:    #7F1D1D;   /* strong accent */
+      --brand-beige:      #F4E8D8;   /* primary beige (page bg) */
+      --brand-beige-200:  #EFE0CC;   /* panels */
+      --brand-beige-300:  #E8D6C0;   /* inputs */
+      --brand-beige-50:   #FBF6EE;   /* soft highlights */
+      --ink:              #1A1A1A;   /* text (secondary color) */
+      --border:           rgba(185,28,28,0.25);  /* red-tinted border */
+      --border-soft:      rgba(185,28,28,0.15);
+      --shadow:           rgba(185,28,28,0.22);
+    }
+
+    /* ===== Page layout ===== */
+    body{
+      background-image: url('background.png');
+      margin:0; padding:16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(900px 600px at 85% -10%, rgba(220,38,38,0.10), transparent 60%),
+        radial-gradient(900px 600px at 0% 110%, rgba(220,38,38,0.08), transparent 60%),
+        var(--brand-beige);                /* BEIGE is the main background */
+      color: var(--ink);
+      min-height:100vh;
+      display:flex; flex-direction:column; align-items:center; gap:12px;
+      box-sizing:border-box;
+    }
+
+    /* Wrap your main two columns if you have them */
+    .sidebar{
+      width:320px;
+      padding:18px;
+      border-right:1px solid var(--border-soft);
+      background:
+        linear-gradient(180deg, var(--brand-beige-50), var(--brand-beige-200));
+      display:flex; flex-direction:column; gap:12px;
+      box-sizing:border-box;
+      border-radius:14px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+
+    .main{
+      flex:1;
+      display:flex;
+      align-items:center; justify-content:center;
+      padding:18px; box-sizing:border-box;
+    }
+
+    .canvas-wrap{
+      padding:16px;
+      border-radius:24px;
+      background:
+        linear-gradient(180deg, var(--brand-beige-50), var(--brand-beige-200));
+      border:1px solid var(--border);
+      box-shadow: 0 24px 70px var(--shadow);
+    }
+
+    canvas{
+      display:block;
+      width:520px; height:520px;
+      border-radius:18px;
+      background: var(--brand-beige-50);  /* không còn nền đen */
+      border:1px solid var(--border-soft);
+    }
+
+    /* ===== Typography ===== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--brand-red-900);
+    }
+
+    .tag i {
+      font-size: 1.1em;
+      color: var(--brand-red);
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size:18px; font-weight:800;
+      color: var(--brand-red);            /* tiêu đề đỏ */
+    }
+    p, .status{ margin:0; font-size:12px; color:#6b5346; }
+
+    label{
+      font-size:12px; color:#7a5c4b;
+      margin-bottom:4px; display:block;
+    }
+
+    /* ===== Inputs ===== */
+    select, textarea, input[type="text"], input[type="number"]{
+      width:100%; padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: var(--brand-beige-300);
+      color: var(--ink); font-size:12px;
+      outline:none; box-sizing:border-box;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+    input[type="range"]{ width:100%; accent-color: var(--brand-red); }
+
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus, .rte-editor:focus{
+      border-color: var(--brand-red-700);
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.20);
+    }
+
+    .row{ display:flex; gap:8px; align-items:center; justify-content:space-between; }
+    .row label{ margin:0; }
+
+    /* ===== Buttons ===== */
+    .btn{
+      padding:8px 14px; border-radius:999px;
+      border:1px solid var(--brand-red-700);
+      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
+      color: #FFF7F0; font-size:12px; font-weight:800;
+      cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+      text-transform: uppercase; letter-spacing: .02em;
+      box-shadow: 0 12px 28px rgba(220,38,38,0.35);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(220,38,38,0.45);
+      filter: brightness(1.05);
+    }
+
+    /* ===== Upload (beige primary secondary to red) ===== */
+    .upload-wrapper{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;        /* <-- căn giữa toàn bộ trong wrapper */
+      text-align: center;
+    }
+    .upload-btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 14px; border-radius:999px; cursor:pointer;
+      border:1px solid var(--border);
+      background: var(--brand-beige-50);
+      color: var(--ink);
+      font-size:12px; font-weight:700;
+      box-shadow: 0 6px 14px rgba(220,38,38,0.18);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .upload-btn:hover{
+      transform: translateY(-1px);
+      background: var(--brand-beige);
+      box-shadow: 0 10px 22px rgba(220,38,38,0.28);
+    }
+    .upload-icon{ font-size:14px; }
+    .upload-hint{ font-size:11px; color:#7a5c4b; }
+
+    /* ===== Rich Text Editor ===== */
+    .rte-toolbar{
+      display:flex; align-items:center; gap:6px;
+      padding:6px; border:1px solid var(--border);
+      border-radius:10px 10px 0 0;
+      background: var(--brand-beige-200);
+    }
+    .rte-btn{
+      border:1px solid var(--border);
+      background: var(--brand-beige-50);
+      color: var(--ink);
+      padding:4px 8px; font-size:12px; border-radius:8px; cursor:pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .rte-btn:hover{
+      background: #FBE9E7;
+      border-color: var(--brand-red-700);
+      color: var(--brand-red-900);
+    }
+    .rte-sep{ width:1px; height:18px; background: var(--border); margin:0 2px; }
+
+    .rte-editor{
+      min-height:120px; padding:10px 12px;
+      border:1px solid var(--border); border-top:none;
+      border-radius:0 0 10px 10px;
+      background: var(--brand-beige-50);
+      color: var(--ink);
+      font-size:13px; line-height:1.6; outline:none; white-space:pre-wrap;
+    }
+    .rte-editor:empty:before{ content:attr(placeholder); color:#967a67; }
+    .rte-editor[ data-align="center" ]{ text-align:center; }
+    .rte-editor[ data-align="right" ]{ text-align:right; }
+
+    /* ===== Chips / badges (nếu có) ===== */
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px; border-radius:999px;
+      background:#FBE9E7; color: var(--brand-red-900);
+      border:1px solid var(--border);
+      font-size:11px; font-weight:700;
+    }
+
+    /* ===== Small helpers ===== */
+    .card{
+      background: linear-gradient(180deg, var(--brand-beige-50), var(--brand-beige));
+      border:1px solid var(--border-soft);
+      border-radius:16px; padding:12px;
+      box-shadow: 0 10px 26px var(--shadow);
+    }
+    /* === Layout fix: sidebar trái, canvas phải === */
+    body{
+      display:flex;
+      flex-direction: row;           /* <-- đổi từ column sang row */
+      align-items: flex-start;       /* sidebar không bị căn giữa theo trục dọc */
+      gap: 16px;                     /* khoảng cách giữa sidebar & main */
+      background: url('background2.png');
+      flex-wrap: wrap;
+    }
+
+    /* Sidebar cố định bề rộng và dính bên trái */
+    .sidebar{
+      width: 320px;                  /* bề rộng cột trái */
+      flex: 0 0 320px;               /* không co giãn */
+      height: calc(100vh - 32px);    /* trừ padding body 16px trên/dưới nếu có */
+      position: sticky;              /* dính khi cuộn */
+      top: 16px;
+      overflow: auto;                /* cuộn nội dung nếu dài */
+      box-sizing: border-box;
+      -ms-overflow-style: none;  /* IE/Edge cũ */
+      scrollbar-width: none;     /* Firefox */
+    }
+    .sidebar::-webkit-scrollbar{ /* Chrome/Safari/Opera */
+      width: 0;
+      height: 0;
+    }
+
+    /* Khu vực chính chiếm phần còn lại */
+    .main{
+      flex: 1 1 auto;                /* giãn hết phần còn lại */
+      min-width: 0;                  /* tránh overflow ngang khi có canvas to */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Đảm bảo canvas ôm vừa, không tràn */
+    .canvas-wrap{
+      max-width: 100%;
+    }
+    canvas{
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* === Responsive: dưới 900px thì xếp dọc như mobile (sidebar phía trên là OK) === */
+    @media (max-width: 900px){
+      body{
+        flex-direction: column;      /* mobile giữ dọc */
+        align-items: stretch;
+      }
+      .sidebar{
+        position: static;
+        width: 100%;
+        height: auto;
+      }
+      .main{
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    /* ===== Header (đỏ & be là chủ đạo) ===== */
+    .app-header{
+      flex: 0 0 100%;
+      order: -1;
+      align-self: stretch;
+      width: 100%;
+      top: 0; z-index: 1000;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr; /* trái | giữa | phải */
+      align-items: center;
+      gap: 12px;
+
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+
+      background: linear-gradient(180deg, var(--brand-beige-50), var(--brand-beige-200));
+      box-shadow: 0 10px 26px var(--shadow);
+    }
+
+    /* Cột trái/giữa/phải */
+    .header-left{ display:flex; align-items:center; gap:10px; }
+    .header-center{ display:flex; justify-content:center; }
+    .header-right{
+      display:flex; justify-content:flex-end; align-items:center; gap:10px;
+    }
+
+    /* Back link */
+    .back-link{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid var(--brand-red-700);
+      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
+      color:#FFF7F0; text-decoration:none; font-weight:800; font-size:12px;
+      box-shadow: 0 8px 20px rgba(220,38,38,.3);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .back-link:hover{
+      transform: translateY(-1px); filter: brightness(1.05);
+      box-shadow: 0 12px 28px rgba(220,38,38,.4);
+    }
+    .back-ico{ font-size:14px; line-height:1; }
+
+    /* Tiêu đề trung tâm */
+    .brand-title{
+      margin:0; font-size:14px; font-weight:900; letter-spacing:.02em;
+      color: var(--brand-red-900);
+    }
+
+    /* Nút MXH */
+    .social-btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:10px;
+      color: var(--brand-red-900); background: var(--brand-beige-50);
+      border:1px solid var(--border);
+      transition: transform .15s ease, background .15s ease, color .15s ease;
+    }
+    .social-btn:hover{
+      transform: translateY(-1px);
+      background:#FBE9E7; color: var(--brand-red-700);
+    }
+
+    /* Responsive: dưới 900px xếp lại */
+    /* === Mobile split view: 1 bên sidebar | 1 bên canvas === */
+    @media (max-width: 900px){
+      :root{
+        /* ước lượng chiều cao header để tính chiều cao còn lại (tuỳ padding của bạn) */
+        --header-h: 72px;
+      }
+
+      /* Dùng grid để đặt header ở hàng 1 (tràn 2 cột), dưới là 2 cột ngang */
+      body{
+        display: grid;
+        grid-template-columns: 1fr 1fr;     /* 2 cột bằng nhau: sidebar | canvas */
+        grid-auto-rows: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 8px;
+        padding: 8px;                       /* giảm padding trên mobile */
+        height: 100dvh;                      /* full chiều cao viewport động trên mobile */
+        overflow: hidden;                    /* chặn body kéo dài vô hạn */
+        background: url('background2.png');
+      }
+
+      /* Header chiếm full hàng trên cùng, dính trên */
+      .app-header{
+        grid-column: 1 / -1;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        margin: 0;                           /* loại bỏ margin-bottom để khỏi “đội” chiều cao */
+        border-radius: 12px;
+      }
+
+      /* Hai cột: mỗi cột tự cuộn nếu nội dung dài */
+      .sidebar,
+      .main{
+        min-width: 0;                        /* tránh tràn ngang */
+        height: calc(100dvh - var(--header-h) - 16px); /* 16px = gap + viền/padding nhẹ */
+        overflow: auto;                      /* cuộn trong từng cột */
+        box-sizing: border-box;
+      }
+
+      /* Sidebar: bớt cảm giác “tràn dọc” */
+      .sidebar{
+        width: auto;                         /* bỏ cố định 320px ở mobile */
+        flex: 0 1 auto;                      /* không cố định co giãn như desktop */
+        padding: 12px 10px;
+        position: static;                    /* tắt sticky để không kéo dài toàn chiều dọc */
+        border-radius: 12px;
+      }
+      .sidebar::-webkit-scrollbar{ width: 0; height: 0; }  /* ẩn scrollbar cho gọn */
+
+      .main{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
+
+      .canvas-wrap{
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        border-radius: 16px;
+      }
+
+      canvas{
+        width: 100%;       /* co giãn theo cột phải */
+        height: auto;
+      }
+
+      /* Tối ưu touch target trên mobile */
+      .btn, .upload-btn, select, input, textarea{
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+      .rte-btn{ padding: 6px 10px; }
+      label{ font-size: 13px; }
+    }
+
+
+    /* Icon-only back button */
+    .back-icon{
+      display:inline-flex; align-items:center; justify-content:center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: var(--brand-beige-50);
+      color: var(--brand-red-900);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 16px rgba(220,38,38,.18);
+      text-decoration: none;
+      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+    }
+    .back-icon:hover{
+      transform: translateY(-1px);
+      background: #FBE9E7;            /* beige sáng hơn */
+      color: var(--brand-red-700);
+      box-shadow: 0 10px 24px rgba(220,38,38,.28);
+    }
+
+    /* Nếu muốn phiên bản nền đỏ (đậm hơn), bỏ comment đoạn dưới và thay class .back-icon-red trong HTML */
+    
+    .back-icon.back-icon-red{
+      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
+      color: #FFF7F0;
+      border-color: var(--brand-red-700);
+    }
+    .back-icon.back-icon-red:hover{
+      filter: brightness(1.05);
+    }
+    /* --- Dịch các icon MXH sang trái --- */
+    .header-right {
+      justify-content: flex-end;
+      gap: 8px;
+      margin-right: 60px; /* hoặc giảm giá trị này nếu muốn dịch ít hơn */
+      transform: translateX(-8px); /* dịch toàn bộ nhóm icon sang trái */
+    }
+
+    /* --- Nút quay về: hover chuyển đỏ, mũi tên trắng --- */
+    .back-icon {
+      background: var(--brand-beige-50);
+      color: var(--brand-red-900);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 16px rgba(220,38,38,.18);
+      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+    }
+
+    .back-icon:hover {
+      background: var(--brand-red); /* chuyển nền sang đỏ */
+      color: white; /* mũi tên chuyển trắng */
+      box-shadow: 0 10px 24px rgba(220,38,38,.35);
+      transform: translateY(-1px);
+    }
+
+   
+
+
+  
+  </style>
+
+
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-left">
+      <a class="back-icon" href="/template-select.html" title="Quay lại trang chọn template" aria-label="Quay lại trang chọn template">
+        <!-- Arrow Left -->
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2Z"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="header-center">
+      <h1 class="brand-title"></h1>
+    </div>
+
+    <nav class="header-right" aria-label="Social links">
+      <a class="social-btn" href="https://www.facebook.com/banstudioHN" target="_blank" rel="noopener">
+        <!-- Facebook -->
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07c0 5.02 3.66 9.18 8.44 9.93v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.2 2.23.2v2.45h-1.26c-1.24 0-1.62.77-1.62 1.56v1.87h2.76l-.44 2.9h-2.32V22c4.78-.75 8.44-4.91 8.44-9.93Z"/>
+        </svg>
+      </a>
+      <a class="social-btn" href="https://www.instagram.com/banvaii/" target="_blank" rel="noopener">
+        <!-- Instagram -->
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5ZM18 6.2a1 1 0 1 0 1 1 1 1 0 0 0-1-1Z"/>
+        </svg>
+      </a>
+      <a class="social-btn" href="https://www.tiktok.com/@aobanvai" target="_blank" rel="noopener">
+        <!-- TikTok -->
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M14.5 3.1v8.2a3.9 3.9 0 1 1-3.9-3.9c.2 0 .5 0 .7.1V5.06a7.02 7.02 0 0 0-.7-.04A6.94 6.94 0 1 0 17.54 12V9.58a7.2 7.2 0 0 0 4.46 1.52V8.1a4.7 4.7 0 0 1-4.46-5Z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <div class="sidebar">
+    <div>
+      <h1>Frame Text Tool</h1>
+      <p>Chọn frame, nhập nội dung, chọn ảnh. Vị trí khung đã được cố định.</p>
+    </div>
+
+    <div>
+      <label>Chọn frame</label>
+      <select id="frameSelect"></select>
+      <div class="status" id="statusText">Đang tải danh sách frame...</div>
+    </div>
+
+    <!-- Thay thế nguyên khối: label + textarea -->
+    <div>
+      <label>Nội dung text</label>
+
+      <!-- Toolbar -->
+      <div class="rte-toolbar">
+        <button type="button" data-cmd="bold"      class="rte-btn"><b>B</b></button>
+        <button type="button" data-cmd="italic"    class="rte-btn"><i>I</i></button>
+        <span class="rte-sep"></span>
+        <button type="button" data-align="left"    class="rte-btn">⟸</button>
+        <button type="button" data-align="center"  class="rte-btn">⇔</button>
+        <button type="button" data-align="right"   class="rte-btn">⟹</button>
+        <span class="rte-sep"></span>
+        <button type="button" id="btnBullets"      class="rte-btn">• List</button>
+      </div>
+
+      <!-- Editor -->
+      <div id="richText"
+          contenteditable="true"
+          data-align="left"
+          class="rte-editor"
+          placeholder="Nhập mô tả / nội dung..."></div>
+      <!-- (Tùy chọn) Ẩn textarea cũ để giữ compatibility -->
+      <textarea id="textInput" style="display:none;"></textarea>
+    </div>
+
+
+    <div class="row">
+      <div style="flex:1">
+        <label>Giãn dòng</label>
+        <input id="lineHeight" type="number" step="0.1" min="0.8" max="2.0" value="1.2" />
+      </div>
+      <div style="flex:1">
+        <label>Padding (px)</label>
+        <input id="padding" type="number" min="0" max="80" value="10" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div style="flex:1">
+        <label>Kích thước xuất (px)</label>
+        <input id="exportSize" type="number" min="600" max="2000" step="60" value="1080" />
+      </div>
+      <div style="flex:1">
+        <label>Zoom xem trước (<span id="zoomLabel">70</span>%)</label>
+        <input id="previewZoom" type="range" min="30" max="120" step="5" value="70" />
+      </div>
+    </div>
+
+    <div class="upload-wrapper">
+      <label>Ảnh của bạn</label>
+      <button type="button" id="overlayToggleBtn" class="upload-btn">
+        <span id="overlayBtnText">
+          <i class="bi bi-camera-fill"></i> Chọn ảnh
+        </span>
+      </button>
+
+      <input id="overlayInput" type="file" accept="image/*" style="display:none" />
+      <div class="upload-hint">PNG/JPG • Sẽ tự căn vào khung ảnh đã thiết kế.</div>
+    </div>
+
+
+
+    <button
+      class="btn"
+      id="downloadBtn"
+      style="
+        font-family:-apple-system,'Segoe UI',Tahoma,'Helvetica Neue',Arial,'DejaVu Sans',Ubuntu,Cantarell,'Noto Sans',sans-serif;
+        font-weight:700; letter-spacing:.02em;
+        display:block;            /* để margin auto có tác dụng */
+        margin:8px auto 0;        /* căn giữa ngang */
+        text-align:center;        /* căn giữa nội dung */
+        align-self:center;        /* nếu parent là flex thì vẫn giữa */
+      "
+    >
+      <i class="bi bi-download"></i> Xuất ảnh PNG
+    </button>
+
+  </div>
+
+  <div class="main">
+    <div class="canvas-wrap">
+      <canvas id="canvas" width="1080" height="1080"></canvas>
+    </div>
+  </div>
+
+<script>
+  // ================= CONFIG =================
+  const API_BASE = "/api/frame-layout"; // relative: chạy được cả localhost & ngrok
+  const BASE_SIZE = 1080;
+  const DEFAULT_OVERLAY_RADIUS = 20;
+  const DEFAULT_OVERLAY_ALPHA = 1;
+  const FIT_MODE = "cover";
+
+  // ================= DOM =================
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const frameSelect = document.getElementById("frameSelect");
+  const statusText = document.getElementById("statusText");
+
+  const textInput = document.getElementById("textInput");
+  const lineHeightEl = document.getElementById("lineHeight");
+  const paddingEl = document.getElementById("padding");
+  const exportSizeEl = document.getElementById("exportSize");
+  const previewZoomEl = document.getElementById("previewZoom");
+  const zoomLabel = document.getElementById("zoomLabel");
+
+  const overlayInput = document.getElementById("overlayInput");
+  const overlayToggleBtn = document.getElementById("overlayToggleBtn");
+  const overlayBtnText = document.getElementById("overlayBtnText");
+  const overlayBtnIcon = document.getElementById("overlayBtnIcon");
+
+  const downloadBtn = document.getElementById("downloadBtn");
+  const richText = document.getElementById("richText");
+
+  // ================= STATE =================
+  let frames = [];
+  let currentKey = null;
+  let currentLayout = null; // { frame_url, textBox, imageBox, colors... }
+
+  let frameImg = new Image();
+  let frameLoaded = false;
+  let layoutLoaded = false;
+
+  let overlayImg = null;
+  let hasOverlay = false;
+
+  // ================= HELPERS =================
+  function setStatus(msg, error = false) {
+    if (!statusText) return;
+    statusText.textContent = msg;
+    statusText.style.color = error ? "#f97316" : "#6b7280";
+  }
+
+  function safeAddListener(el, ev, fn) {
+    if (el) el.addEventListener(ev, fn);
+  }
+
+  function boxPercentToPx(box, size) {
+    return {
+      x: (box.x / 100) * size,
+      y: (box.y / 100) * size,
+      w: (box.w / 100) * size,
+      h: (box.h / 100) * size,
+    };
+  }
+
+  // ===== Toolbar wiring (bold/italic/align/bullets) =====
+  document.querySelectorAll('.rte-toolbar .rte-btn[data-cmd]')?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cmd = btn.getAttribute('data-cmd');
+      if (!richText) return;
+      richText.focus();
+      document.execCommand(cmd, false, null);
+      sizeChange();
+    });
+  });
+
+  document.querySelectorAll('.rte-toolbar .rte-btn[data-align]')?.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!richText) return;
+      const align = btn.getAttribute('data-align'); // left/center/right
+      richText.setAttribute('data-align', align);
+      sizeChange();
+    });
+  });
+
+  const btnBullets = document.getElementById('btnBullets');
+  if (btnBullets) {
+    btnBullets.addEventListener('click', () => {
+      if (!richText) return;
+      // Chuẩn hóa: nếu không có selection, áp dụng cho toàn bộ nội dung
+      const lines = getEditorPlainText().split('\n').map(t => {
+        const s = t.trimStart();
+        if (s.startsWith('• ')) return t.replace(/^\s*•\s/, ''); // bỏ bullet
+        return (t.length ? '• ' + t : t); // thêm bullet
+      });
+      // Thay nội dung (giữ xuống dòng)
+      richText.innerText = lines.join('\n');
+      sizeChange();
+    });
+  }
+
+  function getEditorAlign() {
+    const a = richText?.getAttribute('data-align');
+    return a === 'center' || a === 'right' ? a : 'left';
+  }
+
+  function getEditorPlainText() {
+    return (richText?.innerText || "").replace(/\r/g, "");
+  }
+
+  // Trả về [{ tokens:[{type:'text'|'bold'|'italic', text:'...'}], bullet:boolean }]
+  function serializeEditorToLines() {
+    if (!richText) return [];
+
+    // Nếu người dùng chỉ gõ plain text (không HTML), xử lý nhanh: tách theo \n, và nhận diện '• ' ở đầu dòng
+    const hasInlineHtml = richText.querySelector('b,strong,i,em,ul,ol,li,br,p,div') !== null;
+    if (!hasInlineHtml) {
+      const plain = getEditorPlainText().split('\n');
+      if (!plain.length) return [{ tokens:[{type:'text', text:''}], bullet:false }];
+      return plain.map(line => {
+        const bullet = /^\s*•\s+/.test(line);
+        const text = bullet ? line.replace(/^\s*•\s+/, '') : line;
+        return { tokens:[{type:'text', text}], bullet };
+      });
+    }
+
+    // Có HTML: tạo bản sao để thao tác an toàn
+    const clone = richText.cloneNode(true);
+    const lines = [];
+
+    // Nếu có danh sách ul/ol
+    clone.querySelectorAll('ul,ol').forEach(list => {
+      list.querySelectorAll('li').forEach(li => {
+        lines.push({
+          tokens: inlineTokensFromNode(li),
+          bullet: true
+        });
+      });
+      list.remove();
+    });
+
+    // Các block còn lại: div/p
+    clone.childNodes.forEach(node => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = node.tagName?.toLowerCase();
+        if (tag === 'div' || tag === 'p') {
+          splitByBr(node).forEach(seg => {
+            const tokens = inlineTokensFromNode(seg);
+            // Nếu người dùng gõ ký tự • ở đầu, nhận diện luôn
+            const isBulletChar = tokens.length && typeof tokens[0].text === 'string' && /^\s*•\s+/.test(tokens[0].text);
+            if (isBulletChar) {
+              tokens[0].text = tokens[0].text.replace(/^\s*•\s+/, '');
+            }
+            lines.push({ tokens, bullet: isBulletChar ? true : false });
+          });
+        } else if (tag === 'br') {
+          lines.push({ tokens: [{ type: 'text', text: '' }], bullet: false });
+        } else {
+          // inline element ở root
+          const tokens = inlineTokensFromNode(node);
+          if (tokens.length) {
+            // Nhận diện '• ' nếu có
+            const isBulletChar = tokens.length && typeof tokens[0].text === 'string' && /^\s*•\s+/.test(tokens[0].text);
+            if (isBulletChar) tokens[0].text = tokens[0].text.replace(/^\s*•\s+/, '');
+            lines.push({ tokens, bullet: isBulletChar });
+          }
+        }
+      } else if (node.nodeType === Node.TEXT_NODE) {
+        const parts = (node.nodeValue || '').replace(/\r/g, '').split('\n');
+        parts.forEach(p => {
+          const bullet = /^\s*•\s+/.test(p);
+          const text = bullet ? p.replace(/^\s*•\s+/, '') : p;
+          lines.push({ tokens: [{ type: 'text', text }], bullet });
+        });
+      }
+    });
+
+    if (!lines.length) lines.push({ tokens: [{ type: 'text', text: '' }], bullet: false });
+    return lines;
+  }
+
+  // Chia 1 element theo <br> thành nhiều "đoạn" element nhỏ để dễ token hoá
+  function splitByBr(el) {
+    const out = [];
+    let current = document.createElement('span');
+    el.childNodes.forEach(n => {
+      if (n.nodeType === Node.ELEMENT_NODE && n.tagName?.toLowerCase() === 'br') {
+        out.push(current);
+        current = document.createElement('span');
+      } else {
+        current.appendChild(n.cloneNode(true));
+      }
+    });
+    out.push(current);
+    return out;
+  }
+
+  // Lấy tokens inline từ 1 node: hiểu <b>/<strong> là bold, <i>/<em> là italic
+  function inlineTokensFromNode(node) {
+    const tokens = [];
+    const walk = (n, styleCtx) => {
+      styleCtx = styleCtx || { bold: false, italic: false };
+
+      if (n.nodeType === Node.TEXT_NODE) {
+        const text = (n.nodeValue || '').replace(/\r/g, '');
+        if (text.length) {
+          // Tách theo \n để tránh chảy dòng
+          text.split('\n').forEach((seg, idx, arr) => {
+            if (seg.length) {
+              if (styleCtx.bold) tokens.push({ type: 'bold', text: seg });
+              else if (styleCtx.italic) tokens.push({ type: 'italic', text: seg });
+              else tokens.push({ type: 'text', text: seg });
+            }
+            // nếu có nhiều \n, đẩy thêm token rỗng để giữ dòng
+            if (idx < arr.length - 1) tokens.push({ type: 'text', text: '' });
+          });
+        }
+        return;
+      }
+
+      if (n.nodeType === Node.ELEMENT_NODE) {
+        const tag = n.tagName?.toLowerCase();
+        const nextCtx = { ...styleCtx };
+        if (tag === 'b' || tag === 'strong') nextCtx.bold = true;
+        if (tag === 'i' || tag === 'em') nextCtx.italic = true;
+        n.childNodes.forEach(child => walk(child, nextCtx));
+        return;
+      }
+    };
+
+    walk(node, { bold: false, italic: false });
+    return tokens;
+  }
+
+  // Đo tổng width của 1 dòng token với base fontPx
+  function measureTokensWidth(ctx, tokens, fontPx) {
+    let w = 0;
+    tokens.forEach(tk => {
+      const fontStyle = tk.type === 'italic' ? 'italic' : 'normal';
+      const fontWeight = tk.type === 'bold' ? '700' : '400';
+      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px system-ui, -apple-system, sans-serif`;
+      w += ctx.measureText(tk.text).width;
+    });
+    return w;
+  }
+
+  // Vẽ 1 dòng token theo (x, y)
+  function drawTokensLine(ctx, tokens, x, y, fontPx, color) {
+    let cursor = x;
+    tokens.forEach(tk => {
+      const fontStyle = tk.type === 'italic' ? 'italic' : 'normal';
+      const fontWeight = tk.type === 'bold' ? '700' : '400';
+      ctx.font = `${fontStyle} ${fontWeight} ${fontPx}px system-ui, -apple-system, sans-serif`;
+      ctx.fillStyle = color;
+      if (tk.text) {
+        ctx.fillText(tk.text, cursor, y);
+        cursor += ctx.measureText(tk.text).width;
+      }
+    });
+  }
+
+  // Sync khi gõ: re-render
+  ["input", "keyup", "change", "paste"].forEach(ev => {
+    if (richText) richText.addEventListener(ev, sizeChange);
+  });
+
+  // ===== Wrap & fit =====
+  function wrapLines(ctx, text, maxWidth) {
+    const lines = [];
+    const paragraphs = text.split("\n");
+
+    for (const para of paragraphs) {
+      if (para === "") {
+        lines.push("");
+        continue;
+      }
+      const words = para.split(/\s+/);
+      let line = "";
+      for (const w of words) {
+        if (!w) continue;
+        const test = line ? line + " " + w : w;
+        if (ctx.measureText(test).width <= maxWidth) {
+          line = test;
+        } else {
+          if (line) lines.push(line);
+          line = w;
+        }
+      }
+      if (line) lines.push(line);
+    }
+    return lines;
+  }
+
+  function computeFittedLines(text, boxPx, padding, lineH) {
+    let fontPx = 20;
+    const maxHeight = boxPx.h - padding * 2;
+    let lines = [];
+
+    while (fontPx >= 10) {
+      ctx.font = `normal 400 ${fontPx}px system-ui, -apple-system, sans-serif`;
+      const maxWidth = Math.max(0, boxPx.w - padding * 2);
+      lines = wrapLines(ctx, text, maxWidth);
+
+      const lh = lineH * fontPx;
+      const totalH = lines.length * lh;
+
+      if (totalH <= maxHeight) {
+        return { fontPx, lines, lh };
+      }
+      fontPx--;
+    }
+
+    ctx.font = "normal 400 10px system-ui, -apple-system, sans-serif";
+    const maxWidth = Math.max(0, boxPx.w - padding * 2);
+    lines = wrapLines(ctx, text, maxWidth);
+    return { fontPx: 10, lines, lh: lineH * 10 };
+  }
+
+  function drawRoundedRectPath(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  function updateOverlayButton() {
+    if (!overlayToggleBtn || !overlayBtnText) return;
+
+    if (hasOverlay) {
+      overlayBtnText.innerHTML = '<i class="bi bi-x-lg"></i> Gỡ ảnh';
+      overlayToggleBtn.style.background = "linear-gradient(180deg, var(--brand-red), var(--brand-red-700))";
+      overlayToggleBtn.style.color = "#fff";
+    } else {
+      overlayBtnText.innerHTML = '<i class="bi bi-camera-fill"></i> Chọn ảnh';
+      overlayToggleBtn.style.background = "var(--brand-beige-50)";
+      overlayToggleBtn.style.color = "var(--brand-red-900)";
+    }
+  }
+
+  // ================= RENDER =================
+  function render(targetSize = BASE_SIZE, opts = {}) {
+    if (!frameLoaded || !layoutLoaded || !currentLayout) return;
+
+    const { forceHideBox = false } = opts;
+
+    const textColor      = currentLayout.textColor        || "#333333";
+    const imgBorderColor = currentLayout.imageBorderColor || "#000000";
+    const textBoxColor   = currentLayout.textBoxColor     || "#22c55e";
+    const imageBoxColor  = currentLayout.imageBoxColor    || "#38bdf8";
+
+    const DPR = window.devicePixelRatio || 1;
+    canvas.width = targetSize * DPR;
+    canvas.height = targetSize * DPR;
+
+    const zoom = parseInt(previewZoomEl?.value || "70", 10) / 100;
+    canvas.style.width = targetSize * zoom + "px";
+    canvas.style.height = "auto";
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, targetSize, targetSize);
+
+    // Vẽ frame (cover)
+    const ir = frameImg.width / frameImg.height || 1;
+    let w, h, x, y;
+    if (ir > 1) {
+      h = targetSize;
+      w = h * ir;
+      x = -(w - targetSize) / 2;
+      y = 0;
+    } else {
+      w = targetSize;
+      h = w / ir;
+      x = 0;
+      y = -(h - targetSize) / 2;
+    }
+    ctx.drawImage(frameImg, x, y, w, h);
+
+    const textPx = boxPercentToPx(currentLayout.textBox, targetSize);
+    const imagePx = boxPercentToPx(currentLayout.imageBox, targetSize);
+
+    // Ảnh overlay trong khung
+    const rad = DEFAULT_OVERLAY_RADIUS;
+
+    ctx.save();
+    drawRoundedRectPath(ctx, imagePx.x, imagePx.y, imagePx.w, imagePx.h, rad);
+    ctx.clip();
+
+    // nền trắng mặc định
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(imagePx.x, imagePx.y, imagePx.w, imagePx.h);
+
+    if (overlayImg && hasOverlay) {
+      const ir2 = overlayImg.width / overlayImg.height;
+      const br = imagePx.w / imagePx.h;
+      let iw, ih, ix, iy;
+
+      if (FIT_MODE === "contain") {
+        if (ir2 > br) {
+          iw = imagePx.w;
+          ih = iw / ir2;
+          ix = imagePx.x;
+          iy = imagePx.y + (imagePx.h - ih) / 2;
+        } else {
+          ih = imagePx.h;
+          iw = ih * ir2;
+          ix = imagePx.x + (imagePx.w - iw) / 2;
+          iy = imagePx.y;
+        }
+      } else { // cover
+        if (ir2 > br) {
+          ih = imagePx.h;
+          iw = ih * ir2;
+          ix = imagePx.x - (iw - imagePx.w) / 2;
+          iy = imagePx.y;
+        } else {
+          iw = imagePx.w;
+          ih = iw / ir2;
+          ix = imagePx.x;
+          iy = imagePx.y - (ih - imagePx.h) / 2;
+        }
+      }
+
+      ctx.globalAlpha = DEFAULT_OVERLAY_ALPHA;
+      ctx.drawImage(overlayImg, ix, iy, iw, ih);
+    }
+
+    ctx.restore();
+
+    // viền khung ảnh
+    ctx.save();
+    drawRoundedRectPath(ctx, imagePx.x, imagePx.y, imagePx.w, imagePx.h, rad);
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = imgBorderColor;
+    ctx.stroke();
+    ctx.restore();
+
+    // KHUNG DEBUG (tắt mặc định)
+    const showNow = false;
+    if (showNow && !forceHideBox) {
+      ctx.save();
+      ctx.setLineDash([8, 6]);
+      ctx.lineWidth = 2.5;
+
+      ctx.strokeStyle = textBoxColor;
+      ctx.strokeRect(textPx.x, textPx.y, textPx.w, textPx.h);
+
+      ctx.strokeStyle = imageBoxColor;
+      ctx.strokeRect(imagePx.x, imagePx.y, imagePx.w, imagePx.h);
+
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    // ===== Vẽ text có inline style & align & bullet =====
+    const padding = parseFloat(paddingEl?.value) || 0;
+
+    let rawLH = parseFloat(lineHeightEl?.value);
+    if (isNaN(rawLH)) rawLH = 1.0;
+    const lineH = Math.max(0.8, rawLH);
+
+    // Lấy lines từ HTML editor (gồm tokens & cờ bullet)
+    const richLines = serializeEditorToLines();
+
+    // Dùng text plain để ước lượng fontPx & line height phù hợp khung
+    const plain = richLines.map(r => r.tokens.map(t => t.text).join('')).join('\n');
+    const fit = computeFittedLines(plain, textPx, padding, lineH);
+
+    ctx.textBaseline = "top";
+    ctx.fillStyle = currentLayout.textColor || "#333";
+
+    const innerLeft = textPx.x + padding;
+    const innerRight = textPx.x + textPx.w - padding;
+    const innerWidth = innerRight - innerLeft;
+
+    let ty = textPx.y + padding;
+    const align = getEditorAlign();
+
+    for (const row of richLines) {
+      // Hỗ trợ cả 2 kiểu bullet: từ <li> hoặc từ ký tự '• ' đầu dòng
+      let isBullet = !!row.bullet;
+      // Nếu chưa là bullet mà token đầu chứa '• ', cũng coi là bullet và bỏ ký tự đó đi
+      if (!isBullet && row.tokens.length && typeof row.tokens[0].text === 'string' && /^\s*•\s+/.test(row.tokens[0].text)) {
+        row.tokens[0].text = row.tokens[0].text.replace(/^\s*•\s+/, '');
+        isBullet = true;
+      }
+
+      const bulletIndent = isBullet ? Math.min(16, fit.fontPx * 0.9) : 0;
+      const bulletGap = isBullet ? Math.min(10, fit.fontPx * 0.5) : 0;
+
+      // Đo width dòng theo tokens để canh lề
+      const tokensWidth = measureTokensWidth(ctx, row.tokens, fit.fontPx);
+      const testWidth = tokensWidth + (isBullet ? bulletIndent + bulletGap : 0);
+
+      let startX = innerLeft;
+      if (align === 'center') startX = innerLeft + (innerWidth - testWidth) / 2;
+      if (align === 'right')  startX = innerRight - testWidth;
+
+      // Vẽ bullet nếu có
+      let cursorX = startX;
+      if (isBullet) {
+        const r = Math.max(2, Math.round(fit.fontPx * 0.15));
+        ctx.beginPath();
+        ctx.arc(cursorX + r, ty + fit.fontPx * 0.5, r, 0, Math.PI * 2);
+        ctx.fill();
+        cursorX += bulletIndent + bulletGap;
+      }
+
+      // Vẽ tokens (đậm/ nghiêng) theo thứ tự
+      drawTokensLine(ctx, row.tokens, cursorX, ty, fit.fontPx, currentLayout.textColor || "#333");
+
+      ty += fit.lh;
+      // Nếu vượt quá khung text, dừng (tránh vẽ tràn)
+      if (ty > textPx.y + textPx.h - padding) break;
+    }
+  }
+
+  // ================= LOAD FRAMES FROM API =================
+  const FRAME_API_BASE = "/api/frame-layout";
+  const TEMPLATE_API_BASE = "/api/templates";
+
+  async function loadFrameList() {
+    const params = new URLSearchParams(window.location.search);
+    const tplKey = params.get("tpl");             // template được chọn (nếu có)
+    const frameKeyFromUrl = params.get("frame");  // optional: deep-link frame
+
+    try {
+      if (tplKey) {
+        setStatus(`Đang tải frame của template "${tplKey}"...`);
+        const res = await fetch(`${TEMPLATE_API_BASE}/${encodeURIComponent(tplKey)}`);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        if (!data.frames || !data.frames.length) {
+          setStatus("Template này chưa có frame nào. Hãy cấu hình frame_layouts với template_id tương ứng.", true);
+          frameSelect.innerHTML = "";
+          return;
+        }
+
+        frames = data.frames; // [{layout_key, frame_url}, ...]
+        frameSelect.innerHTML = "";
+        frames.forEach(f => {
+          const opt = document.createElement("option");
+          opt.value = f.layout_key;
+          opt.textContent = f.layout_key;
+          frameSelect.appendChild(opt);
+        });
+
+        const initialKey = (frameKeyFromUrl && frames.some(f => f.layout_key === frameKeyFromUrl))
+          ? frameKeyFromUrl
+          : frames[0].layout_key;
+
+        currentKey = initialKey;
+        frameSelect.value = currentKey;
+
+        await loadLayout(currentKey);
+        setStatus(`Template: ${data.name || tplKey} • Đang dùng frame "${currentKey}"`);
+        return;
+      }
+
+      // Fallback: lấy tất cả frame
+      setStatus("Đang tải danh sách frame...");
+
+      const res = await fetch(FRAME_API_BASE);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const list = await res.json();
+
+      if (!list.length) {
+        setStatus("Chưa có frame nào trong hệ thống.", true);
+        frameSelect.innerHTML = "";
+        return;
+      }
+
+      frames = list; // [{layout_key, ...}, ...]
+      frameSelect.innerHTML = "";
+      frames.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.layout_key;
+        opt.textContent = f.layout_key;
+        frameSelect.appendChild(opt);
+      });
+
+      const initialKey = (frameKeyFromUrl && frames.some(f => f.layout_key === frameKeyFromUrl))
+        ? frameKeyFromUrl
+        : frames[0].layout_key;
+
+      currentKey = initialKey;
+      frameSelect.value = currentKey;
+
+      await loadLayout(currentKey);
+      setStatus(`Đang dùng frame "${currentKey}"`);
+    } catch (err) {
+      console.error(err);
+      setStatus("Không load được danh sách frame.", true);
+    }
+  }
+
+  async function loadLayout(key) {
+    layoutLoaded = false;
+    frameLoaded = false;
+    overlayImg = null;
+    hasOverlay = false;
+    if (overlayInput) overlayInput.value = "";
+    updateOverlayButton();
+
+    setStatus("Đang tải layout " + key + "...");
+    try {
+      const res = await fetch(`/api/frame-layout/${encodeURIComponent(key)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+
+      currentLayout = {
+        frame_url: data.frame_url,
+        textBox: data.textBox,
+        imageBox: data.imageBox,
+        textColor: data.textColor || "#333333",
+        imageBorderColor: data.imageBorderColor || "#000000",
+        textBoxColor: data.textBoxColor || "#22c55e",
+        imageBoxColor: data.imageBoxColor || "#38bdf8",
+      };
+
+      await loadFrameImage(currentLayout.frame_url);
+      layoutLoaded = true;
+      setStatus(`Đã tải frame "${key}". Nhập nội dung & chọn ảnh.`);
+      sizeChange();
+    } catch (err) {
+      console.error(err);
+      setStatus("Không load được layout/frame.", true);
+    }
+  }
+
+  function loadFrameImage(url) {
+    return new Promise((resolve) => {
+      frameImg = new Image();
+      frameImg.onload = () => {
+        frameLoaded = true;
+        resolve();
+      };
+      frameImg.onerror = () => {
+        setStatus("Không load được frame_url: " + url, true);
+        resolve();
+      };
+      frameImg.src = url;
+    });
+  }
+
+  // ================= EVENTS =================
+  // chọn frame khác
+  safeAddListener(frameSelect, "change", async () => {
+    const key = frameSelect.value;
+    if (!key) return;
+    currentKey = key;
+    await loadLayout(currentKey);
+    sizeChange();
+  });
+
+  if (richText) {
+    ['input','keyup','change','paste'].forEach(ev =>
+      richText.addEventListener(ev, sizeChange)
+    );
+  }
+
+  // auto render khi thay đổi text / lineHeight / padding / exportSize
+  ["input", "change"].forEach((ev) => {
+    safeAddListener(textInput, ev, sizeChange);
+    safeAddListener(lineHeightEl, ev, sizeChange);
+    safeAddListener(paddingEl, ev, sizeChange);
+    safeAddListener(exportSizeEl, ev, sizeChange);
+  });
+
+  // zoom preview
+  if (previewZoomEl && zoomLabel) {
+    const handleZoom = () => {
+      zoomLabel.textContent = previewZoomEl.value;
+      sizeChange();
+    };
+    previewZoomEl.addEventListener("input", handleZoom);
+    previewZoomEl.addEventListener("change", handleZoom);
+  }
+
+  // nút chọn / gỡ ảnh
+  safeAddListener(overlayToggleBtn, "click", () => {
+    if (hasOverlay) {
+      overlayImg = null;
+      hasOverlay = false;
+      if (overlayInput) overlayInput.value = "";
+      updateOverlayButton();
+      sizeChange();
+    } else {
+      if (overlayInput) overlayInput.click();
+    }
+  });
+
+  // upload ảnh overlay
+  safeAddListener(overlayInput, "change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        overlayImg = img;
+        hasOverlay = true;
+        updateOverlayButton();
+        sizeChange();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // download: desktop tải file, mobile/in-app mở JPEG để giữ-lưu
+  safeAddListener(downloadBtn, "click", () => {
+    if (!frameLoaded || !layoutLoaded || !currentLayout) return;
+
+    const size = parseInt(exportSizeEl?.value || "1080", 10);
+    const fileName = `${currentKey || "frame"}_export.jpg`;
+
+    // vẽ bản sạch
+    render(size, { forceHideBox: true });
+
+    const ua = navigator.userAgent || "";
+    const isIOS    = /iP(hone|od|ad)/i.test(ua);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    const isInApp  = /(FBAN|FBAV|FB_IAB|FB4A|Instagram|Messenger)/i.test(ua);
+
+    // xuất JPEG cho mobile/in-app
+    const dataUrlJpeg = canvas.toDataURL("image/jpeg", 0.92);
+
+    // In-app (Messenger / FB / IG): mở trang chỉ có ảnh
+    if (isInApp) {
+      const html =
+        '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<title>Lưu ảnh</title></head>' +
+        '<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;">' +
+        '<img src="' + dataUrlJpeg + '" style="max-width:100%;height:auto;display:block;" />' +
+        '</body></html>';
+
+      const win = window.open();
+      if (win) {
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+      } else {
+        document.open();
+        document.write(html);
+        document.close();
+      }
+      sizeChange();
+      return;
+    }
+
+    // iOS Safari: mở ảnh riêng để long-press lưu
+    if (isIOS && isSafari) {
+      const win = window.open();
+      if (win) {
+        win.document.open();
+        win.document.write(
+          '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
+          '<title>Lưu ảnh</title></head>' +
+          '<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;">' +
+          '<img src="' + dataUrlJpeg + '" style="max-width:100%;height:auto;display:block;" />' +
+          '</body></html>'
+        );
+        win.document.close();
+      } else {
+        window.location.href = dataUrlJpeg;
+      }
+      sizeChange();
+      return;
+    }
+
+    // Desktop + đa số Android browser: tải file bình thường
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      sizeChange();
+    });
+  });
+
+  // ================= INIT =================
+  function sizeChange() {
+    // Render preview theo kích thước gốc BASE_SIZE
+    render(BASE_SIZE);
+  }
+
+  (async function init() {
+    updateOverlayButton();
+    setStatus("Đang tải danh sách frame...");
+    await loadFrameList();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(sizeChange);
+    } else {
+      sizeChange();
+    }
+
+    window.addEventListener("resize", sizeChange);
+  })();
+</script>
+
+
+
+
+</body>
+</html>

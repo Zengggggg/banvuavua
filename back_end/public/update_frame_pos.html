@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Frame Layout Editor</title>
+  <style>
+    body { margin:0; font-family:system-ui; background:#020817; color:#e5e7eb; display:flex; min-height:100vh; }
+    .sidebar {
+      width:300px; padding:18px; box-sizing:border-box;
+      border-right:1px solid rgba(148,163,253,0.08);
+      background:radial-gradient(circle at top,rgba(79,70,229,0.12),transparent)#020817;
+      display:flex; flex-direction:column; gap:12px;
+    }
+    h1 { margin:0; font-size:17px; font-weight:600; color:#e5e7ff; }
+    p { margin:0; font-size:11px; color:#9ca3af; }
+    label { font-size:11px; color:#9ca3af; margin-bottom:4px; display:block; }
+    select {
+      width:100%; padding:6px 8px; border-radius:10px;
+      border:1px solid rgba(75,85,99,0.9); background:#020817;
+      color:#e5e7eb; font-size:11px; outline:none;
+    }
+    .target-toggle { display:flex; gap:6px; }
+    .target-btn {
+      flex:1; padding:6px 8px; border-radius:999px;
+      border:1px solid rgba(75,85,99,0.9); background:#020817;
+      color:#9ca3af; font-size:11px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:4px;
+      transition:all .16s ease;
+    }
+    .target-btn.active {
+      background:linear-gradient(to right,#4f46e5,#f97316);
+      color:#020817; border-color:transparent; font-weight:600;
+      box-shadow:0 6px 18px rgba(15,23,42,0.8);
+    }
+    .coords-box {
+      padding:6px 8px; border-radius:10px;
+      background:rgba(9,9,11,0.96);
+      border:1px solid rgba(75,85,99,0.9);
+      font-size:10px;
+      display:grid; grid-template-columns:repeat(4,auto); gap:4px 8px;
+    }
+    .coords-label{color:#6b7280;}
+    .coords-value{color:#e5e7eb;font-weight:500;}
+    .btn{
+      margin-top:6px; padding:7px 10px; border-radius:999px; border:none;
+      font-size:11px; cursor:pointer; display:inline-flex; align-items:center;
+      gap:6px; background:linear-gradient(to right,#4f46e5,#f97316);
+      color:#020817; font-weight:600;
+      box-shadow:0 8px 22px rgba(15,23,42,0.9);
+      transition:all .18s ease;
+    }
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 10px 26px rgba(15,23,42,1); }
+    .btn-secondary{
+      background:transparent; color:#9ca3af;
+      border:1px solid rgba(148,163,253,0.35);
+      box-shadow:none; margin-left:4px;
+    }
+    .btn-secondary:hover{
+      background:rgba(9,9,11,0.98); color:#e5e7eb;
+      box-shadow:0 4px 12px rgba(15,23,42,0.9);
+    }
+    .status{font-size:10px;color:#6b7280;margin-top:2px;}
+    .main{
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:18px; box-sizing:border-box;
+    }
+    .canvas-wrap{
+      padding:16px; border-radius:24px;
+      background:radial-gradient(circle at top,rgba(79,70,229,0.12),transparent)#020817;
+      border:1px solid rgba(75,85,99,0.9);
+      box-shadow:0 28px 80px rgba(0,0,0,0.95);
+    }
+    canvas{
+      display:block; width:520px; height:520px;
+      border-radius:18px; background:#020817; cursor:crosshair;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <h1>Frame Layout Editor</h1>
+      <p>Chọn frame từ DB, kéo khung Text/Image, bấm Save để lưu vào MySQL.</p>
+    </div>
+
+    <div>
+      <label>Chọn frame</label>
+      <select id="frameSelect"></select>
+      <div class="status" id="statusText">Đang tải danh sách frame...</div>
+    </div>
+
+    <div>
+      <label>Đang chỉnh</label>
+      <div class="target-toggle">
+        <button class="target-btn active" data-target="text">✏️ Text box</button>
+        <button class="target-btn" data-target="image">🖼 Image box</button>
+      </div>
+    </div>
+
+    <div>
+      <label>Toạ độ (%) Text box</label>
+      <div class="coords-box" id="textCoords">
+        <span class="coords-label">X</span><span class="coords-value" data-k="x">-</span>
+        <span class="coords-label">Y</span><span class="coords-value" data-k="y">-</span>
+        <span class="coords-label">W</span><span class="coords-value" data-k="w">-</span>
+        <span class="coords-label">H</span><span class="coords-value" data-k="h">-</span>
+      </div>
+    </div>
+
+    <div>
+      <label>Toạ độ (%) Image box</label>
+      <div class="coords-box" id="imgCoords">
+        <span class="coords-label">X</span><span class="coords-value" data-k="x">-</span>
+        <span class="coords-label">Y</span><span class="coords-value" data-k="y">-</span>
+        <span class="coords-label">W</span><span class="coords-value" data-k="w">-</span>
+        <span class="coords-label">H</span><span class="coords-value" data-k="h">-</span>
+      </div>
+    </div>
+    <div>
+      <label>Admin key</label>
+      <input id="adminKeyInput" type="password" placeholder="Nhập admin key để được phép lưu" />
+      <div class="status" id="adminKeyStatus">API yêu cầu x-admin-secret khớp với ADMIN_SECRET.</div>
+    </div>
+    <div>
+      <button class="btn" id="saveBtn">💾 Save layout</button>
+      <button class="btn btn-secondary" id="reloadBtn">⟳ Reload từ server</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="canvas-wrap">
+      <canvas id="layoutCanvas" width="1080" height="1080"></canvas>
+    </div>
+  </div>
+
+<script>
+  const API_BASE = "http://localhost:4000/api/frame-layout";
+  const ADMIN_SECRET = "my-super-secret-key"; // trùng .env (demo)
+
+  const canvas = document.getElementById("layoutCanvas");
+  const ctx = canvas.getContext("2d");
+  const frameSelect = document.getElementById("frameSelect");
+  const statusText = document.getElementById("statusText");
+  const saveBtn = document.getElementById("saveBtn");
+  const reloadBtn = document.getElementById("reloadBtn");
+  const targetButtons = document.querySelectorAll(".target-btn");
+
+  const BASE_SIZE = 1080;
+
+  let frames = [];           // [{layout_key, frame_url, ...}]
+  let currentKey = null;
+  let currentTarget = "text";
+  let frameImg = new Image();
+  let layout = { textBox: null, imageBox: null };
+  let dragging = null;
+
+  function setStatus(msg, error=false) {
+    statusText.textContent = msg;
+    statusText.style.color = error ? "#f97316" : "#6b7280";
+  }
+
+  async function loadFrameList() {
+    try {
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error("HTTP "+res.status);
+      frames = await res.json();
+      frameSelect.innerHTML = "";
+      frames.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.layout_key;
+        opt.textContent = `${f.layout_key}`;
+        frameSelect.appendChild(opt);
+      });
+      if (frames.length) {
+        currentKey = frames[0].layout_key;
+        frameSelect.value = currentKey;
+        await loadLayout(currentKey);
+      } else {
+        setStatus("Chưa có frame nào trong DB.", true);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Không load được danh sách frame.", true);
+    }
+  }
+  const adminKeyInput = document.getElementById("adminKeyInput");
+  let adminKey = "";
+
+  if (adminKeyInput) {
+    adminKeyInput.addEventListener("input", () => {
+      adminKey = adminKeyInput.value.trim();
+    });
+  }
+
+  async function loadLayout(key) {
+    if (!key) return;
+    setStatus(`Đang tải layout: ${key}...`);
+    try {
+      const res = await fetch(`${API_BASE}/${key}`);
+      if (!res.ok) throw new Error("HTTP "+res.status);
+      const data = await res.json();
+      layout.textBox = data.textBox;
+      layout.imageBox = data.imageBox;
+      await loadFrameImage(data.frame_url, key);
+    } catch (err) {
+      console.error(err);
+      setStatus("Không load được layout.", true);
+    }
+  }
+
+  function loadFrameImage(url, keyFor) {
+    return new Promise((resolve) => {
+      frameImg = new Image();
+      frameImg.onload = () => {
+        setStatus(`Đang chỉnh frame: ${keyFor}`);
+        draw();
+        resolve();
+      };
+      frameImg.onerror = () => {
+        setStatus(`Không load được frame_url: ${url}`, true);
+        resolve();
+      };
+      frameImg.src = url;
+    });
+  }
+
+  function boxToPx(box) {
+    return {
+      x: box.x / 100 * BASE_SIZE,
+      y: box.y / 100 * BASE_SIZE,
+      w: box.w / 100 * BASE_SIZE,
+      h: box.h / 100 * BASE_SIZE,
+    };
+  }
+
+  function pxToBox(b) {
+    return {
+      x: +(b.x / BASE_SIZE * 100).toFixed(2),
+      y: +(b.y / BASE_SIZE * 100).toFixed(2),
+      w: +(b.w / BASE_SIZE * 100).toFixed(2),
+      h: +(b.h / BASE_SIZE * 100).toFixed(2),
+    };
+  }
+
+  function updateCoordPanel() {
+    if (!layout.textBox || !layout.imageBox) return;
+    const t = layout.textBox;
+    const i = layout.imageBox;
+    const tBox = document.getElementById("textCoords");
+    const iBox = document.getElementById("imgCoords");
+    tBox.querySelector('[data-k="x"]').textContent = t.x;
+    tBox.querySelector('[data-k="y"]').textContent = t.y;
+    tBox.querySelector('[data-k="w"]').textContent = t.w;
+    tBox.querySelector('[data-k="h"]').textContent = t.h;
+    iBox.querySelector('[data-k="x"]').textContent = i.x;
+    iBox.querySelector('[data-k="y"]').textContent = i.y;
+    iBox.querySelector('[data-k="w"]').textContent = i.w;
+    iBox.querySelector('[data-k="h"]').textContent = i.h;
+  }
+
+  function draw() {
+    if (!layout.textBox || !layout.imageBox) return;
+
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,BASE_SIZE,BASE_SIZE);
+
+    if (frameImg.complete && frameImg.naturalWidth) {
+      const ir = frameImg.width / frameImg.height;
+      let w, h, x, y;
+      if (ir > 1) { h = BASE_SIZE; w = h * ir; x = -(w-BASE_SIZE)/2; y=0; }
+      else { w = BASE_SIZE; h = w/ir; x=0; y = -(h-BASE_SIZE)/2; }
+      ctx.drawImage(frameImg, x, y, w, h);
+    } else {
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(0,0,BASE_SIZE,BASE_SIZE);
+    }
+
+    // text box
+    const tb = boxToPx(layout.textBox);
+    ctx.save();
+    ctx.setLineDash([8,4]);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = currentTarget === "text" ? "#22c55e" : "#6b7280";
+    ctx.strokeRect(tb.x, tb.y, tb.w, tb.h);
+    ctx.fillStyle = "rgba(34,197,94,0.06)";
+    ctx.fillRect(tb.x, tb.y, tb.w, tb.h);
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#22c55e";
+    ctx.fillRect(tb.x + tb.w - 10, tb.y + tb.h - 10, 10, 10);
+    ctx.restore();
+
+    // image box
+    const ib = boxToPx(layout.imageBox);
+    ctx.save();
+    ctx.setLineDash([8,4]);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = currentTarget === "image" ? "#38bdf8" : "#6b7280";
+    ctx.strokeRect(ib.x, ib.y, ib.w, ib.h);
+    ctx.fillStyle = "rgba(56,189,248,0.04)";
+    ctx.fillRect(ib.x, ib.y, ib.w, ib.h);
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(ib.x + ib.w - 10, ib.y + ib.h - 10, 10, 10);
+    ctx.restore();
+
+    updateCoordPanel();
+  }
+
+  function clientToCanvas(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const scale = rect.width / BASE_SIZE;
+    return {
+      x: (evt.clientX - rect.left) / scale,
+      y: (evt.clientY - rect.top) / scale,
+    };
+  }
+
+  function hitTestMode(x, y, box) {
+    const nearCorner = Math.abs(x - (box.x + box.w)) < 14 &&
+                       Math.abs(y - (box.y + box.h)) < 14;
+    if (nearCorner) return "resize";
+    if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h)
+      return "move";
+    return null;
+  }
+
+  canvas.addEventListener("mousedown", (evt) => {
+    if (!currentKey || !layout.textBox || !layout.imageBox) return;
+    const { x, y } = clientToCanvas(evt);
+    const boxPx = currentTarget === "text"
+      ? boxToPx(layout.textBox)
+      : boxToPx(layout.imageBox);
+    const mode = hitTestMode(x, y, boxPx);
+    if (!mode) return;
+    dragging = { target: currentTarget, mode, startX:x, startY:y, box:{...boxPx} };
+  });
+
+  window.addEventListener("mousemove", (evt) => {
+    if (!dragging || !currentKey) return;
+    const { x, y } = clientToCanvas(evt);
+    const dx = x - dragging.startX;
+    const dy = y - dragging.startY;
+    let nb = { ...dragging.box };
+    if (dragging.mode === "move") {
+      nb.x += dx; nb.y += dy;
+    } else {
+      nb.w = Math.max(30, nb.w + dx);
+      nb.h = Math.max(30, nb.h + dy);
+    }
+    nb.x = Math.max(0, Math.min(nb.x, BASE_SIZE - nb.w));
+    nb.y = Math.max(0, Math.min(nb.y, BASE_SIZE - nb.h));
+    const pct = pxToBox(nb);
+    if (dragging.target === "text") layout.textBox = pct;
+    else layout.imageBox = pct;
+    dragging.startX = x;
+    dragging.startY = y;
+    dragging.box = nb;
+    draw();
+  });
+
+  window.addEventListener("mouseup", () => {
+    dragging = null;
+  });
+
+  targetButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      targetButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTarget = btn.dataset.target;
+      draw();
+    });
+  });
+
+  async function saveLayout() {
+    if (!currentKey || !layout.textBox || !layout.imageBox) return;
+    setStatus("Đang lưu layout...");
+    saveBtn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/${currentKey}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-secret": adminKey   // dùng key admin nhập tay
+        },
+        body: JSON.stringify({
+          textBox: layout.textBox,
+          imageBox: layout.imageBox
+        })
+      });
+      if (!res.ok) throw new Error("HTTP "+res.status);
+      setStatus("Đã lưu layout ✅");
+    } catch (err) {
+      console.error(err);
+      setStatus("Lưu layout thất bại.", true);
+    } finally {
+      saveBtn.disabled = false;
+    }
+  }
+
+  saveBtn.addEventListener("click", saveLayout);
+  reloadBtn.addEventListener("click", () => {
+    if (currentKey) loadLayout(currentKey);
+  });
+
+  frameSelect.addEventListener("change", () => {
+    currentKey = frameSelect.value;
+    if (currentKey) loadLayout(currentKey);
+  });
+
+  // INIT
+  loadFrameList();
+</script>
+</body>
+</html>

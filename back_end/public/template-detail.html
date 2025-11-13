@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chọn khung cho template</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #4f46e522, #020817);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 980px;
+    }
+
+    a.back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-decoration: none;
+      margin-bottom: 4px;
+    }
+
+    a.back span {
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    .subtitle {
+      margin: 4px 0 10px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .template-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .template-cover {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(148,163,253,0.2);
+    }
+
+    .template-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .template-info-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    .template-info-desc {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .frame-card {
+      position: relative;
+      background: #020817dd;
+      border-radius: 18px;
+      padding: 8px;
+      border: 1px solid rgba(148,163,253,0.18);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.8);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .frame-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.95);
+      border-color: #f97316dd;
+    }
+
+    .thumb-wrap {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .frame-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f9fafb;
+    }
+
+    .frame-sub {
+      font-size: 9px;
+      color: #9ca3af;
+    }
+
+    .status {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .status.error {
+      color: #f97316;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="/template-select.html" class="back">
+      <span>←</span> Quay lại chọn template
+    </a>
+
+    <div id="templateHeader">
+      <h1>Đang tải template...</h1>
+      <p class="subtitle">Vui lòng đợi trong giây lát.</p>
+    </div>
+
+    <div id="framesContainer" style="display:none;">
+      <p class="subtitle">Chọn một khung bên dưới. Hệ thống sẽ mở công cụ chỉnh sửa tương ứng.</p>
+      <div class="grid" id="framesGrid"></div>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const API_BASE = "/api/templates"; // backend: GET /api/templates/:templateKey
+
+    const headerEl = document.getElementById("templateHeader");
+    const framesWrap = document.getElementById("framesContainer");
+    const framesGrid = document.getElementById("framesGrid");
+    const statusEl = document.getElementById("status");
+
+    function setStatus(msg, isError = false) {
+      statusEl.textContent = msg || "";
+      statusEl.className = "status" + (isError ? " error" : "");
+    }
+
+    function getTemplateKeyFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("tpl");
+    }
+
+    async function loadTemplateDetail() {
+      const tplKey = new URLSearchParams(location.search).get("tpl");
+
+      if (!tplKey) {
+        headerEl.innerHTML = "<h1>Thiếu tham số template</h1><p class='subtitle'>Đường dẫn cần có ?tpl=&lt;template_key&gt;.</p>";
+        setStatus("Không tìm thấy template_key trên URL.", true);
+        return;
+      }
+
+      try {
+        setStatus("Đang tải template '" + tplKey + "'...");
+        const res = await fetch(`${API_BASE}/${encodeURIComponent(tplKey)}`);
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+        const data = await res.json();
+
+        renderTemplateHeader(data);
+        renderFrames(data.frames || []);
+      } catch (err) {
+        console.error(err);
+        headerEl.innerHTML = "<h1>Lỗi tải template</h1>";
+        setStatus("Không load được thông tin template. Vui lòng kiểm tra API /api/templates/:templateKey.", true);
+      }
+    }
+
+    function renderTemplateHeader(tpl) {
+      const name = tpl.name || tpl.template_key || "Template";
+      const desc = tpl.description || "Chọn một khung phù hợp với phong cách này.";
+      const cover = tpl.preview_url;
+
+      let html = '<div class="template-head">';
+      if (cover) {
+        html += '<div class="template-cover"><img src="' + cover + '" alt="' + name + '"></div>';
+      }
+      html += '<div>';
+      html += '<div class="template-info-title">' + name + '</div>';
+      html += '<div class="template-info-desc">' + desc + '</div>';
+      html += '</div></div>';
+
+      headerEl.innerHTML = html;
+      setStatus("");
+    }
+
+    function renderFrames(frames) {
+      if (!frames || !frames.length) {
+        framesWrap.style.display = "none";
+        setStatus("Template này hiện chưa có frame nào. Hãy cấu hình frame_layouts cho template_id tương ứng.", true);
+        return;
+      }
+
+      framesGrid.innerHTML = "";
+      frames.forEach((f, index) => {
+        const layoutKey = f.layout_key;
+        const frameUrl = f.frame_url;
+
+        const card = document.createElement("div");
+        card.className = "frame-card";
+        card.setAttribute("data-layout", layoutKey);
+
+        card.innerHTML = `
+          <div class="thumb-wrap">
+            <img src="${frameUrl}" alt="${layoutKey}">
+          </div>
+          <div class="frame-title">Frame ${index + 1}</div>
+          <div class="frame-sub">${layoutKey}</div>
+        `;
+
+        card.addEventListener("click", () => {
+            window.location.href = `/frame-text-tool.html?frame=${encodeURIComponent(frame.layout_key)}`;
+        });
+
+        framesGrid.appendChild(card);
+      });
+
+      framesWrap.style.display = "block";
+      setStatus("");
+    }
+
+    // init
+    loadTemplateDetail();
+  </script>
+</body>
+</html>

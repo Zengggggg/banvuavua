@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chọn template - Meemap On Your Vibes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  />
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      /* Updated background image URL to new design */
+      background-image: url('background.png');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: #2D2D2D;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    h1 {
+      margin: 4px 0 0;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      color: #C41E3A;
+    }
+    p.subtitle {
+      margin: 2px 0 8px;
+      font-size: 12px;
+      text-align: center;
+      color: #5A4A42;
+    }
+    .grid {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+      gap: 12px;
+    }
+    .card {
+      position: relative;
+      background: #F5E6D3;
+      border-radius: 18px;
+      padding: 8px;
+      border: 2px solid #E74C3C;
+      box-shadow: 0 10px 30px rgba(26, 26, 26, 0.3);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(199, 30, 58, 0.4);
+      border-color: #C41E3A;
+    }
+    .thumb-wrap {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #1A1A1A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--brand-red-900);
+    }
+
+    .tag i {
+      font-size: 1.1em;
+      color: var(--brand-red);
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #C41E3A;
+    }
+    .desc {
+      font-size: 10px;
+      color: #5A4A42;
+      line-height: 1.4;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 9px;
+      background: #E74C3C;
+      color: #F5E6D3;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chọn template "Meemap On Your Vibes"</h1>
+  <p class="subtitle">Chọn bộ template, sau đó chọn khung (frame) cụ thể ở bước tiếp theo.</p>
+
+  <div class="grid">
+    <!-- 5 template, mỗi cái có template_key riêng trong DB -->
+
+    <div class="card" data-template-key="meemap_fire">
+      <div class="thumb-wrap">
+        <img src="/templates/template (1).png" alt="Meemap Fire" />
+      </div>
+      <div class="title">Meemap Fire</div>
+      <div class="desc">Tông đỏ rực, năng lượng mạnh.</div>
+      <div class="tag"><i class="bi bi-fire"></i> Nhiệt huyết</div>
+    </div>
+
+    <div class="card" data-template-key="meemap_gray">
+      <div class="thumb-wrap">
+        <img src="/templates/template (2).png" alt="Meemap Gray" />
+      </div>
+      <div class="title">Meemap Low-key</div>
+      <div class="desc">Tông xám trầm, cool ngầu.</div>
+      <div class="tag"><i class="bi bi-cloud-fog"></i> Trầm</div>
+    </div>
+
+    <div class="card" data-template-key="meemap_blue">
+      <div class="thumb-wrap">
+        <img src="/templates/template (3).png" alt="Meemap Blue" />
+      </div>
+      <div class="title">Meemap Focus</div>
+      <div class="desc">Xanh dương, suy tư & phân tích.</div>
+      <div class="tag"><i class="bi bi-search"></i> Suy nghĩ</div>
+    </div>
+
+    <div class="card" data-template-key="meemap_teal">
+      <div class="thumb-wrap">
+        <img src="/templates/template (4).png" alt="Meemap Teal" />
+      </div>
+      <div class="title">Meemap Chill</div>
+      <div class="desc">Xanh ngọc mát, chill & cân bằng.</div>
+      <div class="tag"><i class="bi bi-snow"></i> Chill</div>
+    </div>
+
+    <div class="card" data-template-key="meemap_love">
+      <div class="thumb-wrap">
+        <img src="/templates/template (5).png" alt="Meemap Love" />
+      </div>
+      <div class="title">Meemap Lovely</div>
+      <div class="desc">Nhiều tim, vibe ấm áp.</div>
+      <div class="tag"><i class="bi bi-heart-fill"></i> Tích cực</div>
+    </div>
+  </div>
+
+  <script>
+    // Đảm bảo chạy sau khi DOM đã load
+    (function initTemplateSelect() {
+      const cards = document.querySelectorAll('.card[data-template-key]');
+      if (!cards.length) {
+        console.warn("Không tìm thấy template card nào. Kiểm tra lại class .card và data-template-key.");
+      }
+
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const tplKey = card.getAttribute('data-template-key');
+            if (!tplKey) return;
+            window.location.href = `/frame-text-tool.html?tpl=${encodeURIComponent(tplKey)}`;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
