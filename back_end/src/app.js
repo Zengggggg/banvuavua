@@ -25,6 +25,9 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(publicDir, "template-select.html"));
+});
 // API
 app.use("/api/frame-layout", frameLayoutRoutes);
 app.use("/api/templates", templatesRoutes); // 👈 THÊM
