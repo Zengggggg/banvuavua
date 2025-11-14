@@ -167,6 +167,234 @@
       animation-name: slide-in-bkg; /* <-- GIỮ KEYFRAME CŨ */
       animation-delay: 0.25s; 
     }
+
+    /* Modal/Expanded Card Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .expanded-card {
+      background: #F5E6D3;
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 3px solid #C41E3A;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      position: relative;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .modal-overlay.active .expanded-card {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .expanded-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(196, 30, 58, 0.2);
+    }
+
+    .expanded-card-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #C41E3A;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 28px;
+      color: #C41E3A;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(196, 30, 58, 0.1);
+      transform: rotate(90deg);
+    }
+
+    .preview-image-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #1A1A1A;
+      margin-bottom: 20px;
+      border: 3px solid #E74C3C;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-image-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #999;
+      font-size: 14px;
+      text-align: center;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .expanded-card-desc {
+      font-size: 14px;
+      color: #5A4A42;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .expanded-card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #E74C3C;
+      color: #F5E6D3;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .expanded-card-tag i {
+      font-size: 1.2em;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-confirm {
+      flex: 1;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(180deg, #C41E3A, #A0172A);
+      color: #F5E6D3;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(196, 30, 58, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(196, 30, 58, 0.5);
+    }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: 2px solid #C41E3A;
+      background: transparent;
+      color: #C41E3A;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(196, 30, 58, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Scrollbar cho expanded card */
+    .expanded-card::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .expanded-card::-webkit-scrollbar-track {
+      background: rgba(196, 30, 58, 0.1);
+      border-radius: 4px;
+    }
+
+    .expanded-card::-webkit-scrollbar-thumb {
+      background: #C41E3A;
+      border-radius: 4px;
+    }
+
+    .expanded-card::-webkit-scrollbar-thumb:hover {
+      background: #A0172A;
+    }
+
+    @media (max-width: 640px) {
+      .expanded-card {
+        max-width: 100%;
+        padding: 20px;
+      }
+
+      .expanded-card-title {
+        font-size: 20px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-confirm,
+      .btn-cancel {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -177,8 +405,9 @@
 
   <div class="grid">
     <!-- 5 template, mỗi cái có template_key riêng trong DB -->
+    <!-- Để thay đổi ảnh giới thiệu, cập nhật attribute data-preview-image -->
 
-    <div class="card" data-template-key="meemap_fire">
+    <div class="card" data-template-key="meemap_fire" data-preview-image="Logo.jpg">
       <div class="thumb-wrap">
         <img src="/templates/template (1).png" alt="Meemap Fire" />
       </div>
@@ -187,7 +416,7 @@
       <div class="tag"><i class="bi bi-fire"></i> Nhiệt huyết</div>
     </div>
 
-    <div class="card" data-template-key="meemap_gray">
+    <div class="card" data-template-key="meemap_gray" data-preview-image="">
       <div class="thumb-wrap">
         <img src="/templates/template (2).png" alt="Meemap Gray" />
       </div>
@@ -196,7 +425,7 @@
       <div class="tag"><i class="bi bi-cloud-fog"></i> Trầm</div>
     </div>
 
-    <div class="card" data-template-key="meemap_blue">
+    <div class="card" data-template-key="meemap_blue" data-preview-image="">
       <div class="thumb-wrap">
         <img src="/templates/template (3).png" alt="Meemap Blue" />
       </div>
@@ -205,7 +434,7 @@
       <div class="tag"><i class="bi bi-search"></i> Suy nghĩ</div>
     </div>
 
-    <div class="card" data-template-key="meemap_teal">
+    <div class="card" data-template-key="meemap_teal" data-preview-image="">
       <div class="thumb-wrap">
         <img src="/templates/template (4).png" alt="Meemap Teal" />
       </div>
@@ -214,7 +443,7 @@
       <div class="tag"><i class="bi bi-snow"></i> Chill</div>
     </div>
 
-    <div class="card" data-template-key="meemap_love">
+    <div class="card" data-template-key="meemap_love" data-preview-image="">
       <div class="thumb-wrap">
         <img src="/templates/template (5).png" alt="Meemap Love" />
       </div>
@@ -224,20 +453,144 @@
     </div>
   </div>
 
+  <!-- Modal Expanded Card -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="expanded-card">
+      <div class="expanded-card-header">
+        <h2 class="expanded-card-title" id="expandedTitle">Template Name</h2>
+        <button class="close-btn" id="closeBtn" aria-label="Đóng">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      
+      <div class="preview-image-container">
+        <img id="expandedPreviewImage" src="" alt="Template Preview" />
+        <div class="preview-image-placeholder" id="previewPlaceholder" style="display: none;">
+          Ảnh giới thiệu sẽ hiển thị ở đây
+        </div>
+      </div>
+      
+      <div class="expanded-card-desc" id="expandedDesc">Mô tả template sẽ hiển thị ở đây.</div>
+      
+      <div class="expanded-card-tag" id="expandedTag">
+        <i class="bi bi-fire"></i>
+        <span>Tag</span>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn-cancel" id="cancelBtn">
+          <i class="bi bi-x-circle"></i>
+          Thoát
+        </button>
+        <button class="btn-confirm" id="confirmBtn">
+          <i class="bi bi-check-circle"></i>
+          Xác nhận dùng template
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Đảm bảo chạy sau khi DOM đã load
     (function initTemplateSelect() {
       const cards = document.querySelectorAll('.card[data-template-key]');
-      if (!cards.length) {
-        console.warn("Không tìm thấy template card nào. Kiểm tra lại class .card và data-template-key.");
+      const modalOverlay = document.getElementById('modalOverlay');
+      const expandedTitle = document.getElementById('expandedTitle');
+      const expandedPreviewImage = document.getElementById('expandedPreviewImage');
+      const previewPlaceholder = document.getElementById('previewPlaceholder');
+      const expandedDesc = document.getElementById('expandedDesc');
+      const expandedTag = document.getElementById('expandedTag');
+      const closeBtn = document.getElementById('closeBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const confirmBtn = document.getElementById('confirmBtn');
+
+      let currentTemplateKey = null;
+
+      // Hàm mở modal với thông tin template
+      function openModal(card) {
+        const tplKey = card.getAttribute('data-template-key');
+        if (!tplKey) return;
+
+        currentTemplateKey = tplKey;
+
+        // Lấy thông tin từ card
+        const title = card.querySelector('.title')?.textContent || 'Template';
+        const desc = card.querySelector('.desc')?.textContent || 'Mô tả template.';
+        const tagElement = card.querySelector('.tag');
+        const tagIcon = tagElement?.querySelector('i')?.className || 'bi bi-fire';
+        // Lấy text từ tag, loại bỏ icon
+        let tagText = tagElement?.textContent?.trim() || 'Tag';
+        // Loại bỏ icon text nếu có (ví dụ: "🔥 Nhiệt huyết" -> "Nhiệt huyết")
+        const iconElement = tagElement?.querySelector('i');
+        if (iconElement) {
+          tagText = tagText.replace(iconElement.textContent || '', '').trim();
+        }
+        // Ưu tiên ảnh preview từ data-preview-image, nếu không có thì dùng thumbnail
+        const previewImg = card.getAttribute('data-preview-image') || 
+                           card.querySelector('.thumb-wrap img')?.src || '';
+
+        // Cập nhật nội dung modal
+        expandedTitle.textContent = title;
+        expandedDesc.textContent = desc;
+        
+        // Cập nhật ảnh preview
+        if (previewImg) {
+          expandedPreviewImage.src = previewImg;
+          expandedPreviewImage.alt = title;
+          previewPlaceholder.style.display = 'none';
+        } else {
+          expandedPreviewImage.src = '';
+          expandedPreviewImage.alt = '';
+          previewPlaceholder.style.display = 'block';
+        }
+        
+        // Cập nhật tag
+        expandedTag.innerHTML = `<i class="${tagIcon}"></i> <span>${tagText}</span>`;
+
+        // Hiển thị modal
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Ngăn scroll body khi modal mở
       }
 
+      // Hàm đóng modal
+      function closeModal() {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // Cho phép scroll lại
+        currentTemplateKey = null;
+      }
+
+      // Xử lý click vào card
       cards.forEach(card => {
         card.addEventListener('click', () => {
-            const tplKey = card.getAttribute('data-template-key');
-            if (!tplKey) return;
-            window.location.href = `/frame-text-tool.html?tpl=${encodeURIComponent(tplKey)}`;
+          openModal(card);
         });
+      });
+
+      // Xử lý nút đóng (X)
+      closeBtn.addEventListener('click', closeModal);
+
+      // Xử lý nút Thoát
+      cancelBtn.addEventListener('click', closeModal);
+
+      // Xử lý nút Xác nhận
+      confirmBtn.addEventListener('click', () => {
+        if (currentTemplateKey) {
+          window.location.href = `/frame-text-tool.html?tpl=${encodeURIComponent(currentTemplateKey)}`;
+        }
+      });
+
+      // Đóng modal khi click vào overlay (ngoài card)
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          closeModal();
+        }
+      });
+
+      // Đóng modal khi nhấn phím ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+          closeModal();
+        }
       });
     })();
     // Thêm đoạn script mới cho hiệu ứng fade ảnh nền

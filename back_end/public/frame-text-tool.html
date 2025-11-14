@@ -574,7 +574,7 @@
         <input id="previewZoom" type="range" min="30" max="120" step="5" value="70" />
       </div>
     </div>
-
+    
     <div class="upload-wrapper">
       <label>Ảnh của bạn</label>
       <button type="button" id="overlayToggleBtn" class="upload-btn">
@@ -585,6 +585,22 @@
 
       <input id="overlayInput" type="file" accept="image/*" style="display:none" />
       <div class="upload-hint">PNG/JPG • Sẽ tự căn vào khung ảnh đã thiết kế.</div>
+    </div>
+
+    <!-- Crop/Pan Controls -->
+    <div id="cropControls" style="display:none; border-top:1px solid var(--border-soft); padding-top:12px; gap:8px; display:flex; flex-direction:column;">
+      <div class="row">
+        <div style="flex:1">
+          <label>Zoom ảnh (<span id="zoomImageLabel">100</span>%)</label>
+          <input id="imageZoom" type="range" min="50" max="200" step="10" value="100" />
+        </div>
+      </div>
+      <button type="button" id="resetImageBtn" class="btn" style="margin:0; width:100%; font-size:11px; padding:6px 10px;">
+        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+      </button>
+      <div style="font-size:11px; color:#7a5c4b; text-align:center;">
+        💡 Kéo ảnh trên khung để điều chỉnh vị trí
+      </div>
     </div>
 
 
@@ -642,6 +658,11 @@
   const downloadBtn = document.getElementById("downloadBtn");
   const richText = document.getElementById("richText");
 
+  const imageZoomEl = document.getElementById("imageZoom");
+  const zoomImageLabel = document.getElementById("zoomImageLabel");
+  const cropControls = document.getElementById("cropControls");
+  const resetImageBtn = document.getElementById("resetImageBtn");
+
   // ================= STATE =================
   let frames = [];
   let currentKey = null;
@@ -653,6 +674,11 @@
 
   let overlayImg = null;
   let hasOverlay = false;
+  // --- Thêm biến trạng thái cho ảnh Overlay ---
+  let overlayZoom = 1.0;          // Tỉ lệ zoom của ảnh gốc (1.0 = fit)
+  let overlayOffsetX = 0;         // Dịch chuyển X (px)
+  let overlayOffsetY = 0;         // Dịch chuyển Y (px)
+  // ------------------------------------------
 
   // ================= HELPERS =================
   function setStatus(msg, error = false) {
@@ -945,10 +971,16 @@
       overlayBtnText.innerHTML = '<i class="bi bi-x-lg"></i> Gỡ ảnh';
       overlayToggleBtn.style.background = "linear-gradient(180deg, var(--brand-red), var(--brand-red-700))";
       overlayToggleBtn.style.color = "#fff";
+      
+      // Hiển thị crop controls
+      if (cropControls) cropControls.style.display = "block";
     } else {
       overlayBtnText.innerHTML = '<i class="bi bi-camera-fill"></i> Chọn ảnh';
       overlayToggleBtn.style.background = "var(--brand-beige-50)";
       overlayToggleBtn.style.color = "var(--brand-red-900)";
+      
+      // Ẩn crop controls
+      if (cropControls) cropControls.style.display = "none";
     }
   }
 
@@ -1005,38 +1037,35 @@
     ctx.fillRect(imagePx.x, imagePx.y, imagePx.w, imagePx.h);
 
     if (overlayImg && hasOverlay) {
+      // Tính kích thước gốc của ảnh dùng cover mode (ảnh phủ đầy khung)
       const ir2 = overlayImg.width / overlayImg.height;
       const br = imagePx.w / imagePx.h;
-      let iw, ih, ix, iy;
+      let initialW, initialH, initialX, initialY;
 
-      if (FIT_MODE === "contain") {
-        if (ir2 > br) {
-          iw = imagePx.w;
-          ih = iw / ir2;
-          ix = imagePx.x;
-          iy = imagePx.y + (imagePx.h - ih) / 2;
-        } else {
-          ih = imagePx.h;
-          iw = ih * ir2;
-          ix = imagePx.x + (imagePx.w - iw) / 2;
-          iy = imagePx.y;
-        }
-      } else { // cover
-        if (ir2 > br) {
-          ih = imagePx.h;
-          iw = ih * ir2;
-          ix = imagePx.x - (iw - imagePx.w) / 2;
-          iy = imagePx.y;
-        } else {
-          iw = imagePx.w;
-          ih = iw / ir2;
-          ix = imagePx.x;
-          iy = imagePx.y - (ih - imagePx.h) / 2;
-        }
+      if (ir2 > br) { // ảnh rộng hơn khung
+        initialH = imagePx.h;
+        initialW = initialH * ir2;
+        initialX = imagePx.x - (initialW - imagePx.w) / 2;
+        initialY = imagePx.y;
+      } else { // ảnh cao hơn khung
+        initialW = imagePx.w;
+        initialH = initialW / ir2;
+        initialX = imagePx.x;
+        initialY = imagePx.y - (initialH - imagePx.h) / 2;
       }
 
+      // Áp dụng zoom (phóng to/thu nhỏ từ tâm)
+      const zoomedW = initialW * overlayZoom;
+      const zoomedH = initialH * overlayZoom;
+      const zoomCenterX = initialX + initialW / 2;
+      const zoomCenterY = initialY + initialH / 2;
+
+      // Vẽ ảnh với zoom và pan (kéo)
+      const drawX = zoomCenterX - zoomedW / 2 + overlayOffsetX;
+      const drawY = zoomCenterY - zoomedH / 2 + overlayOffsetY;
+
       ctx.globalAlpha = DEFAULT_OVERLAY_ALPHA;
-      ctx.drawImage(overlayImg, ix, iy, iw, ih);
+      ctx.drawImage(overlayImg, drawX, drawY, zoomedW, zoomedH);
     }
 
     ctx.restore();
@@ -1214,8 +1243,18 @@
     frameLoaded = false;
     overlayImg = null;
     hasOverlay = false;
+
     if (overlayInput) overlayInput.value = "";
     updateOverlayButton();
+
+    // --- Reset trạng thái Overlay ---
+    overlayZoom = 1.0;
+    overlayOffsetX = 0;
+    overlayOffsetY = 0;
+    if (imageZoomEl) {
+      imageZoomEl.value = 100;
+      if (zoomImageLabel) zoomImageLabel.textContent = "100";
+    }
 
     setStatus("Đang tải layout " + key + "...");
     try {
@@ -1292,6 +1331,34 @@
     previewZoomEl.addEventListener("change", handleZoom);
   }
 
+  // zoom image overlay
+  if (imageZoomEl && zoomImageLabel) {
+    const handleImageZoom = () => {
+      const zoomPercent = parseInt(imageZoomEl.value, 10);
+      zoomImageLabel.textContent = zoomPercent;
+      overlayZoom = zoomPercent / 100;
+      // Clamp offset khi zoom thay đổi (vì giới hạn thay đổi theo zoom)
+      clampImageOffset();
+      sizeChange();
+    };
+    imageZoomEl.addEventListener("input", handleImageZoom);
+    imageZoomEl.addEventListener("change", handleImageZoom);
+  }
+
+  // nút reset ảnh
+  safeAddListener(resetImageBtn, "click", () => {
+    // Reset zoom về 100%
+    if (imageZoomEl) {
+      imageZoomEl.value = 100;
+      overlayZoom = 1.0;
+      if (zoomImageLabel) zoomImageLabel.textContent = "100";
+    }
+    // Reset offset về (0, 0)
+    overlayOffsetX = 0;
+    overlayOffsetY = 0;
+    sizeChange();
+  });
+
   // nút chọn / gỡ ảnh
   safeAddListener(overlayToggleBtn, "click", () => {
     if (hasOverlay) {
@@ -1316,6 +1383,9 @@
       img.onload = () => {
         overlayImg = img;
         hasOverlay = true;
+        // Reset offset về 0 khi upload ảnh mới (ảnh sẽ ở vị trí mặc định)
+        overlayOffsetX = 0;
+        overlayOffsetY = 0;
         updateOverlayButton();
         sizeChange();
       };
@@ -1323,6 +1393,118 @@
     };
     reader.readAsDataURL(file);
   });
+
+  // ================= DRAG TO PAN IMAGE =================
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragStartOffsetX = 0;
+  let dragStartOffsetY = 0;
+
+  // Hàm tính giới hạn offset để ảnh không kéo ra ngoài khung
+  function clampImageOffset(targetSize = BASE_SIZE) {
+    if (!overlayImg || !currentLayout) return;
+
+    const imagePx = boxPercentToPx(currentLayout.imageBox, targetSize);
+    const ir2 = overlayImg.width / overlayImg.height;
+    const br = imagePx.w / imagePx.h;
+    
+    // Tính kích thước ban đầu (cover mode)
+    let initialW, initialH;
+    if (ir2 > br) {
+      initialH = imagePx.h;
+      initialW = initialH * ir2;
+    } else {
+      initialW = imagePx.w;
+      initialH = initialW / ir2;
+    }
+
+    // Kích thước sau khi zoom
+    const zoomedW = initialW * overlayZoom;
+    const zoomedH = initialH * overlayZoom;
+
+    // Tính giới hạn offset
+    // Nếu ảnh lớn hơn khung: có thể kéo trong phạm vi
+    // Nếu ảnh nhỏ hơn khung: không thể kéo (offset = 0)
+    
+    let minOffsetX, maxOffsetX;
+    if (zoomedW > imagePx.w) {
+      // Ảnh lớn hơn khung: có thể kéo
+      maxOffsetX = (zoomedW - imagePx.w) / 2;
+      minOffsetX = -maxOffsetX;
+    } else {
+      // Ảnh nhỏ hơn khung: không thể kéo, phải ở giữa
+      minOffsetX = 0;
+      maxOffsetX = 0;
+    }
+
+    let minOffsetY, maxOffsetY;
+    if (zoomedH > imagePx.h) {
+      // Ảnh lớn hơn khung: có thể kéo
+      maxOffsetY = (zoomedH - imagePx.h) / 2;
+      minOffsetY = -maxOffsetY;
+    } else {
+      // Ảnh nhỏ hơn khung: không thể kéo, phải ở giữa
+      minOffsetY = 0;
+      maxOffsetY = 0;
+    }
+
+    // Clamp offset về trong giới hạn
+    overlayOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, overlayOffsetX));
+    overlayOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, overlayOffsetY));
+  }
+
+  const canvasWrap = document.querySelector('.canvas-wrap');
+  if (canvasWrap) {
+    canvasWrap.addEventListener('mousedown', (e) => {
+      if (!hasOverlay || !currentLayout) return;
+      
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartOffsetX = overlayOffsetX;
+      dragStartOffsetY = overlayOffsetY;
+      canvasWrap.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      // Tính toán delta dựa trên preview zoom level
+      const previewZoom = parseInt(previewZoomEl?.value || "70", 10) / 100;
+      const canvasDisplayWidth = 520 * previewZoom;
+      const scale = BASE_SIZE / canvasDisplayWidth;
+
+      const deltaX = (e.clientX - dragStartX) * scale;
+      const deltaY = (e.clientY - dragStartY) * scale;
+
+      // Cập nhật offset tạm thời
+      overlayOffsetX = dragStartOffsetX + deltaX;
+      overlayOffsetY = dragStartOffsetY + deltaY;
+
+      // Giới hạn offset trong vùng khung ảnh
+      clampImageOffset();
+
+      sizeChange();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        canvasWrap.style.cursor = 'grab';
+      }
+    });
+
+    canvasWrap.addEventListener('mouseenter', () => {
+      if (hasOverlay && !isDragging) {
+        canvasWrap.style.cursor = 'grab';
+      }
+    });
+
+    canvasWrap.addEventListener('mouseleave', () => {
+      canvasWrap.style.cursor = 'default';
+    });
+  }
 
   // download: desktop tải file, mobile/in-app mở JPEG để giữ-lưu
   safeAddListener(downloadBtn, "click", () => {
