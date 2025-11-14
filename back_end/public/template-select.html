@@ -115,9 +115,63 @@
       color: #F5E6D3;
       margin-top: 2px;
     }
+    /* Định nghĩa hiệu ứng Di chuyển và Fade-In */
+    @keyframes slide-in-bkg {
+      0% {
+        opacity: 0;
+        transform: translateY(100%); /* Bắt đầu từ dưới màn hình */
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0); /* Di chuyển về vị trí ban đầu */
+      }
+    }
+    @keyframes slide-in-right-bkg {
+      0% {
+        opacity: 0;
+        transform: translateX(100%); /* Bắt đầu từ ngoài rìa phải màn hình */
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0); /* Di chuyển về vị trí ban đầu */
+      }
+    }
+
+    /* Lớp Ảnh nền Mới (Overlay) - Định nghĩa chung */
+    .static-background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      z-index: -1;
+      animation-duration: 1s; 
+      animation-timing-function: ease-out;
+      animation-fill-mode: forwards; 
+      opacity: 0; 
+    }
+
+    /* Ảnh 1: Di chuyển TỪ PHẢI SANG */
+    #bkg-1 {
+      background-image: url('Thiết kế chưa có tên (1).png');
+      animation-name: slide-in-right-bkg; /* <-- ÁP DỤNG KEYFRAME MỚI */
+      animation-delay: 0.25s; 
+    }
+
+    /* Ảnh 2: Di chuyển TỪ DƯỚI LÊN */
+    #bkg-2 {
+      background-image: url('Thiết kế chưa có tên.png');
+      animation-name: slide-in-bkg; /* <-- GIỮ KEYFRAME CŨ */
+      animation-delay: 0.25s; 
+    }
   </style>
 </head>
 <body>
+  <div class="static-background-overlay" id="bkg-1"></div>
+  <div class="static-background-overlay" id="bkg-2"></div>
   <h1>Chọn template "Meemap On Your Vibes"</h1>
   <p class="subtitle">Chọn bộ template, sau đó chọn khung (frame) cụ thể ở bước tiếp theo.</p>
 
@@ -186,6 +240,34 @@
         });
       });
     })();
+    // Thêm đoạn script mới cho hiệu ứng fade ảnh nền
+    function startBackgroundFade() {
+      const bg1 = document.getElementById('bg-1');
+      const bg2 = document.getElementById('bg-2');
+      let currentBg = 1;
+
+      // Hàm chuyển đổi ảnh nền
+      function fadeBackgrounds() {
+        if (currentBg === 1) {
+          // Fade in bg2, fade out bg1
+          bg2.style.opacity = 1;
+          bg1.style.opacity = 0;
+          currentBg = 2;
+        } else {
+          // Fade in bg1, fade out bg2
+          bg1.style.opacity = 1;
+          bg2.style.opacity = 0;
+          currentBg = 1;
+        }
+      }
+
+      // Thay đổi sau mỗi 6 giây (2 giây fade + 4 giây dừng)
+      // Điều chỉnh `6000` mili giây tùy ý
+      setInterval(fadeBackgrounds, 6000); 
+    }
+
+    // Bắt đầu hiệu ứng sau khi trang load
+    window.onload = startBackgroundFade;
   </script>
 </body>
 </html>
