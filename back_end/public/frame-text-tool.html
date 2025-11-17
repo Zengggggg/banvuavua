@@ -283,14 +283,21 @@
     }
 
     /* === Layout fix: sidebar trái, canvas phải === */
-    body{
-      display:flex;
-      flex-direction: row;           /* <-- đổi từ column sang row */
-      align-items: flex-start;       /* sidebar không bị căn giữa theo trục dọc */
-      gap: 16px;                     /* khoảng cách giữa sidebar & main */
-      background: url('background2.png');
+    body {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 16px;
+
+      background-image: url('background2.svg');
+      background-size: cover;         /* <-- NGĂN gấp, fill toàn màn */
+      background-repeat: no-repeat;   /* <-- NGĂN lặp lại ảnh */
+      background-position: center;    /* <-- Căn giữa ảnh */
+
       flex-wrap: wrap;
+      min-height: 100vh;              /* <-- tránh body co lại làm ảnh gấp */
     }
+
 
     /* Sidebar cố định bề rộng và dính bên trái */
     .sidebar{
