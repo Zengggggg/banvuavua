@@ -407,7 +407,7 @@
     <!-- 5 template, mỗi cái có template_key riêng trong DB -->
     <!-- Để thay đổi ảnh giới thiệu, cập nhật attribute data-preview-image -->
 
-    <div class="card" data-template-key="meemap_fire" data-preview-image="introduction/bankhoo.png">
+    <div class="card" data-template-key="meemap_fire" data-template-color="đỏ" data-preview-image="introduction/bankhoo.png">
       <div class="thumb-wrap">
         <img src="/templates/template (1).png" alt="Meemap Fire" />
       </div>
@@ -416,7 +416,7 @@
       <div class="tag"><i class="bi bi-fire"></i> Nhiệt huyết</div>
     </div>
 
-    <div class="card" data-template-key="meemap_gray" data-preview-image="introduction/bantantam.png">
+    <div class="card" data-template-key="meemap_gray" data-template-color="xám" data-preview-image="introduction/bantantam.png">
       <div class="thumb-wrap">
         <img src="/templates/template (2).png" alt="Meemap Gray" />
       </div>
@@ -425,7 +425,7 @@
       <div class="tag"><i class="bi bi-cloud-fog"></i> Trầm</div>
     </div>
 
-    <div class="card" data-template-key="meemap_blue" data-preview-image="introduction/bannagdong.png">
+    <div class="card" data-template-key="meemap_blue" data-template-color="xanh navy" data-preview-image="introduction/bannagdong.png">
       <div class="thumb-wrap">
         <img src="/templates/template (3).png" alt="Meemap Blue" />
       </div>
@@ -434,7 +434,7 @@
       <div class="tag"><i class="bi bi-rocket"></i></i> Truyển cảm hứng</div>
     </div>
 
-    <div class="card" data-template-key="meemap_teal" data-preview-image="introduction/bankhampha.png">
+    <div class="card" data-template-key="meemap_teal" data-template-color="xanh ve chai" data-preview-image="introduction/bankhampha.png">
       <div class="thumb-wrap">
         <img src="/templates/template (4).png" alt="Meemap Teal" />
       </div>
@@ -443,7 +443,7 @@
       <div class="tag"><i class="bi bi-signpost-split"></i> Khám phá</div>
     </div>
 
-    <div class="card" data-template-key="meemap_love" data-preview-image="introduction/banthanthien.png">
+    <div class="card" data-template-key="meemap_love" data-template-color="trắng" data-preview-image="introduction/banthanthien.png">
       <div class="thumb-wrap">
         <img src="/templates/template (5).png" alt="Meemap Love" />
       </div>
@@ -505,6 +505,7 @@
       const confirmBtn = document.getElementById('confirmBtn');
 
       let currentTemplateKey = null;
+      let currentTemplateColor = "";
 
       // Hàm mở modal với thông tin template
       function openModal(card) {
@@ -512,6 +513,7 @@
         if (!tplKey) return;
 
         currentTemplateKey = tplKey;
+        currentTemplateColor = card.getAttribute('data-template-color') || "";
 
         // Lấy thông tin từ card
         const title = card.querySelector('.title')?.textContent || 'Template';
@@ -557,6 +559,7 @@
         modalOverlay.classList.remove('active');
         document.body.style.overflow = ''; // Cho phép scroll lại
         currentTemplateKey = null;
+        currentTemplateColor = "";
       }
 
       // Xử lý click vào card
@@ -575,7 +578,12 @@
       // Xử lý nút Xác nhận
       confirmBtn.addEventListener('click', () => {
         if (currentTemplateKey) {
-          window.location.href = `/frame-text-tool.html?tpl=${encodeURIComponent(currentTemplateKey)}`;
+          const params = new URLSearchParams();
+          params.set('tpl', currentTemplateKey);
+          if (currentTemplateColor) {
+            params.set('color', currentTemplateColor);
+          }
+          window.location.href = `/frame-text-tool.html?${params.toString()}`;
         }
       });
 

@@ -10,10 +10,9 @@
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   />
-  <!-- Quill Editor -->
-  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
     :root{
       /* ===== Brand palette (Red + Beige are primary) ===== */
       --brand-red:        #DC2626;   /* primary red */
@@ -33,7 +32,7 @@
     body{
       background-image: url('background.png');
       margin:0; padding:16px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background:
         radial-gradient(900px 600px at 85% -10%, rgba(220,38,38,0.10), transparent 60%),
         radial-gradient(900px 600px at 0% 110%, rgba(220,38,38,0.08), transparent 60%),
@@ -118,13 +117,47 @@
     }
     input[type="range"]{ width:100%; accent-color: var(--brand-red); }
 
-    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus, .rte-editor:focus{
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus{
       border-color: var(--brand-red-700);
       box-shadow: 0 0 0 3px rgba(220,38,38,0.20);
     }
 
     .row{ display:flex; gap:8px; align-items:center; justify-content:space-between; }
     .row label{ margin:0; }
+
+    .template-editor{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .template-field{
+      border:1px solid var(--border-soft);
+      border-radius:12px;
+      padding:10px;
+      background: var(--brand-beige-50);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .template-field p{
+      margin:0;
+      font-size:12px;
+      color:#6b5346;
+      font-weight:600;
+    }
+    .template-field input{
+      border-radius:10px;
+      border:1px dashed rgba(185,28,28,0.45);
+      background: var(--brand-beige-300);
+      padding:8px 10px;
+      font-size:12px;
+      color: var(--ink);
+      outline:none;
+    }
+    .template-field input::placeholder{
+      color:#967a67;
+    }
 
     /* ===== Buttons ===== */
     .btn{
@@ -168,119 +201,6 @@
     }
     .upload-icon{ font-size:14px; }
     .upload-hint{ font-size:11px; color:#7a5c4b; }
-
-    /* ===== Rich Text Editor ===== */
-    .rte-toolbar{
-      display:flex; align-items:center; gap:6px;
-      padding:6px; border:1px solid var(--border);
-      border-radius:10px 10px 0 0;
-      background: var(--brand-beige-200);
-    }
-    .rte-btn{
-      border:1px solid var(--border);
-      background: var(--brand-beige-50);
-      color: var(--ink);
-      padding:4px 8px; font-size:12px; border-radius:8px; cursor:pointer;
-      transition: background .15s ease, color .15s ease, border-color .15s ease;
-    }
-    .rte-btn:hover{
-      background: #FBE9E7;
-      border-color: var(--brand-red-700);
-      color: var(--brand-red-900);
-    }
-    .rte-btn-active{
-      background: var(--brand-red) !important;
-      color: #FFF7F0 !important;
-      border-color: var(--brand-red-700) !important;
-    }
-    .rte-select{
-      padding: 4px 8px;
-      border: 1px solid var(--border);
-      background: var(--brand-beige-50);
-      color: var(--ink);
-      font-size: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      outline: none;
-      min-width: 90px;
-      transition: background .15s ease, border-color .15s ease;
-    }
-    .rte-select:hover{
-      background: #FBE9E7;
-      border-color: var(--brand-red-700);
-    }
-    .rte-select:focus{
-      border-color: var(--brand-red-700);
-      box-shadow: 0 0 0 2px rgba(220,38,38,0.20);
-    }
-    .rte-sep{ width:1px; height:18px; background: var(--border); margin:0 2px; }
-
-    .rte-editor{
-      min-height:120px; padding:10px 12px;
-      border:1px solid var(--border); border-top:none;
-      border-radius:0 0 10px 10px;
-      background: var(--brand-beige-50);
-      color: var(--ink);
-      font-size:13px; line-height:1.6; outline:none; white-space:pre-wrap;
-    }
-    .rte-editor:empty:before{ content:attr(placeholder); color:#967a67; }
-    .rte-editor[ data-align="center" ]{ text-align:center; }
-    .rte-editor[ data-align="right" ]{ text-align:right; }
-    
-    /* Quill Editor Styles */
-    #quillEditor {
-      min-height: 60px;
-      max-height: 80px;
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 10px 10px;
-      background: var(--brand-beige-50);
-      overflow-y: auto;
-      margin-bottom: 12px;
-    }
-    #quillEditor .ql-editor {
-      min-height: 60px;
-      max-height: 80px;
-      color: var(--ink);
-      font-size: 13px;
-      line-height: 1.5;
-      padding: 6px 10px;
-      overflow-y: auto;
-    }
-    #quillEditor .ql-editor.ql-blank::before {
-      content: 'Nhập mô tả / nội dung...';
-      color: #967a67;
-      font-style: normal;
-      pointer-events: none;
-    }
-    #quillEditor .ql-container {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    #quillEditor .ql-toolbar {
-      border: 1px solid var(--border);
-      border-bottom: none;
-      border-radius: 10px 10px 0 0;
-      background: var(--brand-beige-200);
-      padding: 4px 6px;
-    }
-    #quillEditor .ql-toolbar .ql-stroke {
-      stroke: var(--ink);
-    }
-    #quillEditor .ql-toolbar .ql-fill {
-      fill: var(--ink);
-    }
-    #quillEditor .ql-toolbar button:hover,
-    #quillEditor .ql-toolbar button.ql-active {
-      color: var(--brand-red-900);
-    }
-    #quillEditor .ql-toolbar button:hover .ql-stroke,
-    #quillEditor .ql-toolbar button.ql-active .ql-stroke {
-      stroke: var(--brand-red-900);
-    }
-    #quillEditor .ql-toolbar button:hover .ql-fill,
-    #quillEditor .ql-toolbar button.ql-active .ql-fill {
-      fill: var(--brand-red-900);
-    }
 
     /* === Layout fix: sidebar trái, canvas phải === */
     body {
@@ -530,33 +450,6 @@
         min-height: 48px;
         width: 100%;
         justify-content: center;
-      }
-
-      /* Rich text editor */
-      .rte-toolbar{
-        padding: 8px;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .rte-btn{
-        padding: 10px 14px;
-        font-size: 14px;
-        min-height: 40px;
-        min-width: 40px;
-      }
-
-      .rte-select{
-        font-size: 14px;
-        padding: 10px 12px;
-        min-height: 40px;
-        min-width: 100px;
-      }
-
-      .rte-editor{
-        font-size: 16px;                     /* Tránh zoom trên iOS */
-        min-height: 120px;
-        padding: 12px;
       }
 
       /* Row layout - stack trên mobile */
@@ -833,35 +726,39 @@
       <div class="status" id="statusText">Đang tải danh sách frame...</div>
     </div>
 
-    <!-- Thay thế nguyên khối: label + Quill editor -->
-    <div style="margin-bottom: 12px;">
-      <label>Nội dung text</label>
+    <div class="template-editor">
+      <label for="templateBusy">Mẫu trả lời cố định</label>
 
-      <!-- Font Size Dropdown (bên ngoài Quill toolbar) -->
-      <div style="margin-bottom: 8px;">
-        <select id="fontSizeSelect" class="font-size-select-standalone" style="padding: 4px 8px; border: 1px solid var(--border); background: var(--brand-beige-50); color: var(--ink); font-size: 12px; border-radius: 8px; cursor: pointer; outline: none; min-width: 90px; height: 28px;">
-          <option value="">Cỡ chữ</option>
-          <option value="12px">12px</option>
-          <option value="14px">14px</option>
-          <option value="16px">16px</option>
-          <option value="18px">18px</option>
-          <option value="20px">20px</option>
-          <option value="24px">24px</option>
-          <option value="28px">28px</option>
-          <option value="32px">32px</option>
-          <option value="36px">36px</option>
-          <option value="48px">48px</option>
-          <option value="60px">60px</option>
-          <option value="72px">72px</option> 
-        </select>
+      <div class="template-field">
+        <p>Hôm nay tôi “bận” kiểu __________________</p>
+        <input id="templateBusy" data-template-input type="text" placeholder="Ví dụ: chill lặng lẽ" />
       </div>
 
-      <!-- Quill Editor -->
-      <div id="quillEditor"></div>
-      <!-- (Tùy chọn) Ẩn textarea cũ để giữ compatibility -->
-      <textarea id="textInput" style="display:none;"></textarea>
-    </div>
+      <div class="template-field">
+        <p>Tính cách - cảm xúc đó thể hiện rõ nhất khi __________</p>
+        <input id="templateHighlight" data-template-input type="text" placeholder="Ví dụ: đi dạo cuối ngày" />
+      </div>
 
+      <div class="template-field">
+        <p>Tuy đôi khi tôi thấy mình __________________ nhưng đó vẫn là tôi.</p>
+        <input id="templateSometimes" data-template-input type="text" placeholder="Ví dụ: hơi thất thường" />
+      </div>
+
+      <div class="template-field">
+        <p>Tôi nghĩ điều khiến tôi khác biệt là __________________</p>
+        <input id="templateUnique" data-template-input type="text" placeholder="Ví dụ: luôn chân thành với cảm xúc" />
+      </div>
+
+      <div class="template-field">
+        <p>Để mô tả tính cách - cảm xúc đó với 3 từ khác nhau thì sẽ là __________________</p>
+        <input id="templateThreeWords" data-template-input type="text" placeholder="Ví dụ: dịu dàng - sâu sắc - ấm áp" />
+      </div>
+
+      <div class="template-field">
+        <p>Bạn thấy trong 5 màu (trắng/xanh navy/xanh ve chai/xám/đỏ) màu nào bộc lộ và thể hiện được tính cách - cảm xúc chính của bạn?</p>
+        <input id="templateColor" data-template-input type="text" placeholder="Ví dụ: xanh ve chai" />
+      </div>
+    </div>
 
     <div class="row">
       <div style="flex:1">
@@ -945,6 +842,7 @@
   const DEFAULT_OVERLAY_RADIUS = 20;
   const DEFAULT_OVERLAY_ALPHA = 1;
   const FIT_MODE = "cover";
+  const FONT_FAMILY = "Montserrat, system-ui, -apple-system, sans-serif";
 
   // ================= DOM =================
   const canvas = document.getElementById("canvas");
@@ -953,7 +851,6 @@
   const frameSelect = document.getElementById("frameSelect");
   const statusText = document.getElementById("statusText");
 
-  const textInput = document.getElementById("textInput");
   const lineHeightEl = document.getElementById("lineHeight");
   const paddingEl = document.getElementById("padding");
   const exportSizeEl = document.getElementById("exportSize");
@@ -966,63 +863,31 @@
   const overlayBtnIcon = document.getElementById("overlayBtnIcon");
 
   const downloadBtn = document.getElementById("downloadBtn");
-  
-  // Khởi tạo Quill Editor
-  let quill = null;
-  const quillEditor = document.getElementById("quillEditor");
-  if (quillEditor) {
-    // Tạo custom format cho font size (pixel) sử dụng inline style
-    const Parchment = Quill.import('parchment');
-    const FontSizeStyle = new Parchment.Attributor.Style('fontSize', 'font-size', {
-      scope: Parchment.Scope.INLINE,
-      whitelist: ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '48px', '60px', '72px']
-    });
-    Quill.register(FontSizeStyle, true);
+  const FRAME_DEFAULT_COLORS = {
+    "new__default1": "màu đỏ",
+    "new__default": "màu đen",
+    "my_frame4": "màu xanh dương",
+    "my_frame3": "màu xanh ngọc",
+    "my_frame5": "màu trắng",
+  };
 
-    quill = new Quill('#quillEditor', {
-      theme: 'snow',
-      placeholder: 'Nhập mô tả / nội dung...',
-      modules: {
-        toolbar: [
-          ['bold', 'italic'],
-          [{ 'align': [] }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }]
-        ]
-      }
-    });
-    
-    // Kết nối dropdown font size với Quill
-    const fontSizeSelect = document.getElementById('fontSizeSelect');
-    if (fontSizeSelect) {
-      // Xử lý khi chọn cỡ chữ
-      fontSizeSelect.addEventListener('change', function() {
-        const value = this.value;
-        if (value) {
-          quill.format('fontSize', value);
-        } else {
-          quill.format('fontSize', false);
-        }
-      });
-      
-      // Cập nhật dropdown khi selection thay đổi
-      quill.on('selection-change', function(range) {
-        if (range && fontSizeSelect) {
-          const format = quill.getFormat(range);
-          if (format.fontSize) {
-            fontSizeSelect.value = format.fontSize;
-          } else {
-            fontSizeSelect.value = '';
-          }
-        }
-      });
-    }
-    
-    // Lắng nghe thay đổi để re-render canvas
-    quill.on('text-change', () => {
-      sizeChange();
-    });
+  const templateInputs = document.querySelectorAll("[data-template-input]");
+  const templateFieldMap = {
+    busy: document.getElementById("templateBusy"),
+    highlight: document.getElementById("templateHighlight"),
+    sometimes: document.getElementById("templateSometimes"),
+    unique: document.getElementById("templateUnique"),
+    threeWords: document.getElementById("templateThreeWords"),
+    color: document.getElementById("templateColor"),
+  };
+  const pageParams = new URLSearchParams(window.location.search);
+  const presetColor = pageParams.get("color") || "";
+  if (presetColor && templateFieldMap.color && !templateFieldMap.color.value) {
+    templateFieldMap.color.value = presetColor;
   }
-
+  templateInputs.forEach((input) => {
+    safeAddListener(input, "input", sizeChange);
+  });
   const imageZoomEl = document.getElementById("imageZoom");
   const zoomImageLabel = document.getElementById("zoomImageLabel");
   const cropControls = document.getElementById("cropControls");
@@ -1066,248 +931,105 @@
     };
   }
 
-  // ===== Quill Editor Functions =====
+  // ===== Template Text Helpers =====
+  const TEMPLATE_BLANK = "__________________";
+
+  function readTemplateField(field) {
+    if (!field) return "";
+    return (field.value || "").trim();
+  }
+
+  function getTemplateValues() {
+    return {
+      busy: readTemplateField(templateFieldMap.busy),
+      highlight: readTemplateField(templateFieldMap.highlight),
+      sometimes: readTemplateField(templateFieldMap.sometimes),
+      unique: readTemplateField(templateFieldMap.unique),
+      threeWords: readTemplateField(templateFieldMap.threeWords),
+      color: readTemplateField(templateFieldMap.color),
+    };
+  }
+
+  function createValueSegment(value) {
+    const text = value || TEMPLATE_BLANK;
+    return {
+      text,
+      bold: true,
+    };
+  }
+
+  function buildTemplateLineSegments() {
+    const values = getTemplateValues();
+    return [
+      [
+        { text: 'Hôm nay tôi “bận” kiểu ', bold: false },
+        createValueSegment(values.busy),
+      ],
+      [
+        { text: 'Tính cách - cảm xúc đó thể hiện rõ nhất khi ', bold: false },
+        createValueSegment(values.highlight),
+      ],
+      [
+        { text: 'Tuy đôi khi tôi thấy mình ', bold: false },
+        createValueSegment(values.sometimes),
+        { text: ' nhưng đó vẫn là tôi.', bold: false },
+      ],
+      [
+        { text: 'Tôi nghĩ điều khiến tôi khác biệt là ', bold: false },
+        createValueSegment(values.unique),
+      ],
+      [
+        {
+          text: 'Để mô tả tính cách - cảm xúc đó với 3 từ khác nhau thì sẽ là ',
+          bold: false,
+        },
+        createValueSegment(values.threeWords),
+      ],
+      [
+        {
+          text: 'Bạn thấy màu nào bộc lộ và thể hiện được tính cách - cảm xúc chính của bạn? ',
+          bold: false,
+        },
+        createValueSegment(values.color),
+      ],
+    ];
+  }
+
+  function buildTemplateRenderData() {
+    const lineSegments = buildTemplateLineSegments();
+    let text = '';
+    const styles = [];
+
+    lineSegments.forEach((line, idx) => {
+      line.forEach((segment) => {
+        if (!segment.text) return;
+        text += segment.text;
+        for (let i = 0; i < segment.text.length; i++) {
+          styles.push(!!segment.bold);
+        }
+      });
+
+      if (idx < lineSegments.length - 1) {
+        text += '\n';
+        styles.push(false);
+      }
+    });
+
+    return { text, styles };
+  }
+
+  function getTemplatePlainText() {
+    return buildTemplateRenderData().text;
+  }
+
+
   function getEditorAlign() {
-    if (!quill) return 'left';
-    const format = quill.getFormat();
-    return format.align || 'left';
+    return "left";
   }
 
   function getEditorPlainText() {
-    if (!quill) return "";
-    return quill.getText().replace(/\r/g, "");
+    return getTemplatePlainText();
   }
-
-  // Trả về [{ tokens:[{type:'text'|'bold'|'italic', text:'...'}], listType:'bullet'|'ordered'|null, listNumber?:number }]
-  function serializeEditorToLines() {
-    if (!quill) return [{ tokens: [{ type: 'text', text: '' }], listType: null }];
-
-    // Parse từ HTML của Quill - đơn giản và chính xác hơn
-    const html = quill.root.innerHTML;
-    if (!html || html.trim() === '') {
-      return [{ tokens: [{ type: 'text', text: '' }], listType: null }];
-    }
-
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    const lines = [];
-    let orderedListCounter = 0;
-
-    // Hàm extract tokens từ một node (hỗ trợ bold/italic/fontSize)
-    function extractTokensFromNode(node) {
-      const tokens = [];
-      
-      function walk(n, styleCtx) {
-        styleCtx = styleCtx || { bold: false, italic: false, fontSize: null };
-        
-        if (n.nodeType === Node.TEXT_NODE) {
-          const text = n.textContent || '';
-          if (text.length > 0) {
-            let type = 'text';
-            if (styleCtx.bold && styleCtx.italic) {
-              type = 'bold'; // Ưu tiên bold
-            } else if (styleCtx.bold) {
-              type = 'bold';
-            } else if (styleCtx.italic) {
-              type = 'italic';
-            }
-            
-            tokens.push({ 
-              type, 
-              text,
-              size: styleCtx.fontSize || null
-            });
-          }
-          return;
-        }
-        
-        if (n.nodeType === Node.ELEMENT_NODE) {
-          const tag = n.tagName?.toLowerCase();
-          const nextCtx = { ...styleCtx };
-          
-          if (tag === 'b' || tag === 'strong') nextCtx.bold = true;
-          if (tag === 'i' || tag === 'em') nextCtx.italic = true;
-          
-          // Kiểm tra fontSize từ style
-          if (n.style && n.style.fontSize) {
-            nextCtx.fontSize = n.style.fontSize;
-          }
-          
-          Array.from(n.childNodes).forEach(child => walk(child, nextCtx));
-        }
-      }
-      
-      walk(node, { bold: false, italic: false, fontSize: null });
-      return tokens.length > 0 ? tokens : [{ type: 'text', text: '' }];
-    }
-
-    // Xử lý các node con
-    Array.from(tempDiv.childNodes).forEach(node => {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const tag = node.tagName?.toLowerCase();
-        
-        if (tag === 'ol') {
-          // Ordered list
-          orderedListCounter = 0;
-          Array.from(node.querySelectorAll('li')).forEach(li => {
-            orderedListCounter++;
-            const tokens = extractTokensFromNode(li);
-            lines.push({ 
-              tokens, 
-              listType: 'ordered',
-              listNumber: orderedListCounter
-            });
-          });
-        } else if (tag === 'ul') {
-          // Bullet list
-          orderedListCounter = 0;
-          Array.from(node.querySelectorAll('li')).forEach(li => {
-            const tokens = extractTokensFromNode(li);
-            lines.push({ 
-              tokens, 
-              listType: 'bullet'
-            });
-          });
-        } else if (tag === 'p' || tag === 'div') {
-          // Paragraph hoặc div - có thể chứa nhiều dòng (br)
-          const parts = [];
-          let current = [];
-          
-          function splitByBr(el) {
-            const result = [];
-            let currentPart = [];
-            
-            function processNode(n) {
-              if (n.nodeType === Node.TEXT_NODE) {
-                const text = n.textContent || '';
-                if (text.includes('\n')) {
-                  const textParts = text.split('\n');
-                  for (let i = 0; i < textParts.length; i++) {
-                    if (textParts[i].length > 0) {
-                      currentPart.push({ type: 'text', text: textParts[i] });
-                    }
-                    if (i < textParts.length - 1) {
-                      result.push([...currentPart]);
-                      currentPart = [];
-                    }
-                  }
-                } else if (text.length > 0) {
-                  currentPart.push({ type: 'text', text });
-                }
-              } else if (n.nodeType === Node.ELEMENT_NODE) {
-                if (n.tagName?.toLowerCase() === 'br') {
-                  result.push([...currentPart]);
-                  currentPart = [];
-                } else {
-                  const tokens = extractTokensFromNode(n);
-                  currentPart.push(...tokens);
-                }
-              }
-            }
-            
-            Array.from(el.childNodes).forEach(processNode);
-            if (currentPart.length > 0) {
-              result.push(currentPart);
-            }
-            
-            return result.length > 0 ? result : [[]];
-          }
-          
-          const lineParts = splitByBr(node);
-          lineParts.forEach(partTokens => {
-            if (partTokens.length > 0 || lineParts.length === 1) {
-              lines.push({ 
-                tokens: partTokens.length > 0 ? partTokens : [{ type: 'text', text: '' }], 
-                listType: null 
-              });
-            }
-          });
-        } else if (tag === 'br') {
-          // Line break
-          lines.push({ tokens: [{ type: 'text', text: '' }], listType: null });
-        } else {
-          // Inline element
-          const tokens = extractTokensFromNode(node);
-          if (tokens.length > 0) {
-            lines.push({ tokens, listType: null });
-          }
-        }
-      } else if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent || '';
-        if (text.trim() || text.includes('\n')) {
-          const parts = text.split('\n');
-          parts.forEach((part, idx) => {
-            if (part.trim() || idx < parts.length - 1) {
-              lines.push({ 
-                tokens: [{ type: 'text', text: part }], 
-                listType: null 
-              });
-            }
-          });
-        }
-      }
-    });
-
-    if (!lines.length) {
-      lines.push({ tokens: [{ type: 'text', text: '' }], listType: null });
-    }
-
-    return lines;
-  }
-
-
-  // Helper: chuyển đổi size từ Quill format (px string) sang số pixel
-  function getFontSizeFromToken(token, baseFontPx) {
-    if (!token.size) return baseFontPx;
-    // token.size có thể là "12px", "24px", etc.
-    const sizeStr = String(token.size);
-    const sizeNum = parseInt(sizeStr.replace('px', ''), 10);
-    if (!isNaN(sizeNum) && sizeNum > 0) {
-      return sizeNum;
-    }
-    return baseFontPx;
-  }
-
-  // Đo tổng width của 1 dòng token với base fontPx
-  function measureTokensWidth(ctx, tokens, fontPx) {
-    let w = 0;
-    tokens.forEach(tk => {
-      const fontStyle = tk.type === 'italic' ? 'italic' : 'normal';
-      const fontWeight = tk.type === 'bold' ? '700' : '400';
-      const actualFontPx = getFontSizeFromToken(tk, fontPx);
-      ctx.font = `${fontStyle} ${fontWeight} ${actualFontPx}px system-ui, -apple-system, sans-serif`;
-      w += ctx.measureText(tk.text).width;
-    });
-    return w;
-  }
-
-  // Vẽ 1 dòng token theo (x, y)
-  function drawTokensLine(ctx, tokens, x, y, fontPx, color) {
-    let cursor = x;
-    
-    // Tìm font size lớn nhất trong dòng để căn baseline
-    let maxFontPx = fontPx;
-    tokens.forEach(tk => {
-      const actualFontPx = getFontSizeFromToken(tk, fontPx);
-      if (actualFontPx > maxFontPx) maxFontPx = actualFontPx;
-    });
-    
-    tokens.forEach(tk => {
-      const fontStyle = tk.type === 'italic' ? 'italic' : 'normal';
-      const fontWeight = tk.type === 'bold' ? '700' : '400';
-      const actualFontPx = getFontSizeFromToken(tk, fontPx);
-      ctx.font = `${fontStyle} ${fontWeight} ${actualFontPx}px system-ui, -apple-system, sans-serif`;
-      ctx.fillStyle = color;
-      if (tk.text) {
-        // Căn baseline: các cỡ chữ nhỏ hơn sẽ được đẩy xuống để align với cỡ chữ lớn nhất
-        const baselineOffset = (maxFontPx - actualFontPx) * 0.2; // Điều chỉnh nhẹ để đẹp hơn
-        ctx.fillText(tk.text, cursor, y + baselineOffset);
-        cursor += ctx.measureText(tk.text).width;
-      }
-    });
-  }
-
-  // Sync khi gõ: re-render (đã được xử lý trong Quill text-change event)
 
   // ===== Wrap & fit =====
   function wrapLines(ctx, text, maxWidth) {
@@ -1337,12 +1059,14 @@
   }
 
   function computeFittedLines(text, boxPx, padding, lineH) {
-    let fontPx = 20;
+    const START_FONT = 20;
+    const MIN_FONT = 14;
+    let fontPx = START_FONT;
     const maxHeight = boxPx.h - padding * 2;
     let lines = [];
 
-    while (fontPx >= 10) {
-      ctx.font = `normal 400 ${fontPx}px system-ui, -apple-system, sans-serif`;
+    while (fontPx >= MIN_FONT) {
+      ctx.font = `normal 400 ${fontPx}px ${FONT_FAMILY}`;
       const maxWidth = Math.max(0, boxPx.w - padding * 2);
       lines = wrapLines(ctx, text, maxWidth);
 
@@ -1355,10 +1079,10 @@
       fontPx--;
     }
 
-    ctx.font = "normal 400 10px system-ui, -apple-system, sans-serif";
+    ctx.font = `normal 400 ${MIN_FONT}px ${FONT_FAMILY}`;
     const maxWidth = Math.max(0, boxPx.w - padding * 2);
-    lines = wrapLines(ctx, text, maxWidth);
-    return { fontPx: 10, lines, lh: lineH * 10 };
+    lines = wrapStyledLines(ctx, text, styleFlags, maxWidth, fontPx);
+    return { fontPx: MIN_FONT, lines, lh: lineH * MIN_FONT };
   }
 
   function drawRoundedRectPath(ctx, x, y, w, h, r) {
@@ -1503,99 +1227,102 @@
       ctx.restore();
     }
 
-    // ===== Vẽ text có inline style & align & bullet =====
+            // ===== Vẽ text =====
     const padding = parseFloat(paddingEl?.value) || 0;
 
     let rawLH = parseFloat(lineHeightEl?.value);
     if (isNaN(rawLH)) rawLH = 1.0;
     const lineH = Math.max(0.8, rawLH);
 
-    // Lấy lines từ HTML editor (gồm tokens & cờ bullet)
-    const richLines = serializeEditorToLines();
-
-    // Dùng text plain để ước lượng fontPx & line height phù hợp khung
-    const plain = richLines.map(r => r.tokens.map(t => t.text).join('')).join('\n');
+    const renderData = buildTemplateRenderData();
+    const plain = renderData.text;
+    const styleFlags = renderData.styles;
     const fit = computeFittedLines(plain, textPx, padding, lineH);
 
     ctx.textBaseline = "top";
-    ctx.fillStyle = currentLayout.textColor || "#333";
+    const resolvedTextColor = currentLayout.textColor || currentLayout.imageBorderColor || "#333";
+    ctx.fillStyle = resolvedTextColor;
 
     const innerLeft = textPx.x + padding;
     const innerRight = textPx.x + textPx.w - padding;
     const innerWidth = innerRight - innerLeft;
 
+    ctx.save();
+    ctx.beginPath();
+
+    // Thêm margin 2px để tránh cắt chữ
+    ctx.rect(
+      textPx.x - 2,
+      textPx.y - 2,
+      textPx.w + 4,
+      textPx.h + 4
+    );
+
+    ctx.clip();
+
+
     let ty = textPx.y + padding;
     const align = getEditorAlign();
-
-    let orderedListCounter = 0; // Đếm số thứ tự cho ordered list
-    
-    for (const row of richLines) {
-      // Xác định loại list
-      const isBullet = row.listType === 'bullet';
-      const isOrdered = row.listType === 'ordered';
-      const hasList = isBullet || isOrdered;
-      
-      // Hỗ trợ cả 2 kiểu bullet: từ <li> hoặc từ ký tự '• ' đầu dòng
-      let detectedBullet = false;
-      if (!hasList && row.tokens.length && typeof row.tokens[0].text === 'string' && /^\s*•\s+/.test(row.tokens[0].text)) {
-        row.tokens[0].text = row.tokens[0].text.replace(/^\s*•\s+/, '');
-        detectedBullet = true;
+    let styleIndex = 0;
+    const skipNewlines = () => {
+      while (styleIndex < plain.length && plain[styleIndex] === "\n") {
+        styleIndex++;
       }
-      const finalIsBullet = isBullet || detectedBullet;
-      
-      // Tính indent và gap
-      const listIndent = hasList ? Math.min(20, fit.fontPx * 1.2) : 0;
-      const listGap = hasList ? Math.min(10, fit.fontPx * 0.5) : 0;
+    };
 
-      // Đo width dòng theo tokens để canh lề
-      const tokensWidth = measureTokensWidth(ctx, row.tokens, fit.fontPx);
-      let listMarkerWidth = 0;
-      if (isOrdered && row.listNumber) {
-        // Ước lượng width của số thứ tự
-        ctx.font = `normal 400 ${fit.fontPx}px system-ui, -apple-system, sans-serif`;
-        listMarkerWidth = ctx.measureText(`${row.listNumber}.`).width;
+    skipNewlines();
+
+    for (const line of fit.lines) {
+      const lineText = line || "";
+
+      // Tách segment theo style thực của từng ký tự
+      const segments = [];
+      let currentBold = styleFlags[styleIndex];
+      let currentText = lineText[0] || "";
+
+      for (let i = 1; i < lineText.length; i++) {
+        const isBold = styleFlags[styleIndex + i];
+        if (isBold === currentBold) {
+          currentText += lineText[i];
+        } else {
+          segments.push({ text: currentText, bold: currentBold });
+          currentBold = isBold;
+          currentText = lineText[i];
+        }
       }
-      const testWidth = tokensWidth + (hasList ? listIndent + listGap + listMarkerWidth : 0);
+      segments.push({ text: currentText, bold: currentBold });
 
-      let startX = innerLeft;
-      if (align === 'center') startX = innerLeft + (innerWidth - testWidth) / 2;
-      if (align === 'right')  startX = innerRight - testWidth;
-
-      // Vẽ list marker (bullet hoặc số thứ tự)
-      let cursorX = startX;
-      if (finalIsBullet) {
-        // Vẽ bullet
-        const r = Math.max(2, Math.round(fit.fontPx * 0.15));
-        ctx.beginPath();
-        ctx.arc(cursorX + r, ty + fit.fontPx * 0.5, r, 0, Math.PI * 2);
-        ctx.fill();
-        cursorX += listIndent + listGap;
-      } else if (isOrdered && row.listNumber) {
-        // Vẽ số thứ tự
-        ctx.font = `normal 400 ${fit.fontPx}px system-ui, -apple-system, sans-serif`;
-        ctx.fillStyle = currentLayout.textColor || "#333";
-        ctx.fillText(`${row.listNumber}.`, cursorX, ty);
-        cursorX += listMarkerWidth + listGap;
-      }
-
-      // Vẽ tokens (đậm/ nghiêng/ cỡ chữ) theo thứ tự
-      drawTokensLine(ctx, row.tokens, cursorX, ty, fit.fontPx, currentLayout.textColor || "#333");
-
-      // Tính line height dựa trên cỡ chữ lớn nhất trong dòng
-      let maxFontPx = fit.fontPx;
-      row.tokens.forEach(tk => {
-        const actualFontPx = getFontSizeFromToken(tk, fit.fontPx);
-        if (actualFontPx > maxFontPx) maxFontPx = actualFontPx;
+      // đo width từng segment
+      let total = 0;
+      const measured = segments.map(seg => {
+        ctx.font = `${seg.bold ? "600" : "400"} ${fit.fontPx}px ${FONT_FAMILY}`;
+        const w = ctx.measureText(seg.text).width;
+        total += w;
+        return { ...seg, width: w };
       });
-      const actualLineHeight = maxFontPx * lineH;
-      
-      ty += actualLineHeight;
-      // Nếu vượt quá khung text, dừng (tránh vẽ tràn)
-      if (ty > textPx.y + textPx.h - padding) break;
-    }
+
+      // Tính vị trí render theo align
+      let x = innerLeft;
+      if (align === "center") x = innerLeft + (innerWidth - total) / 2;
+      if (align === "right") x = innerRight - total;
+
+      // Vẽ từng segment
+      measured.forEach(seg => {
+        ctx.font = `${seg.bold ? "600" : "400"} ${fit.fontPx}px ${FONT_FAMILY}`;
+        ctx.fillText(seg.text, x, ty);
+        x += seg.width;
+      });
+
+      // Update index & dòng
+      styleIndex += lineText.length + 1; 
+      ty += fit.lh;
   }
 
-  // ================= LOAD FRAMES FROM API =================
+
+    ctx.restore();
+  }
+
+// ================= LOAD FRAMES FROM API =================
   const FRAME_API_BASE = "/api/frame-layout";
   const TEMPLATE_API_BASE = "/api/templates";
 
@@ -1709,6 +1436,11 @@
         imageBoxColor: data.imageBoxColor || "#38bdf8",
       };
 
+      const mappedColor = FRAME_DEFAULT_COLORS[key];
+      if (mappedColor && templateFieldMap.color) {
+        templateFieldMap.color.value = mappedColor;
+      }
+
       await loadFrameImage(currentLayout.frame_url);
       layoutLoaded = true;
       setStatus(`Đã tải frame "${key}". Nhập nội dung & chọn ảnh.`);
@@ -1744,11 +1476,10 @@
     sizeChange();
   });
 
-  // Event listeners đã được xử lý trong Quill text-change event
+  // Template inputs trigger render via listeners registered near the top
 
   // auto render khi thay đổi text / lineHeight / padding / exportSize
   ["input", "change"].forEach((ev) => {
-    safeAddListener(textInput, ev, sizeChange);
     safeAddListener(lineHeightEl, ev, sizeChange);
     safeAddListener(paddingEl, ev, sizeChange);
     safeAddListener(exportSizeEl, ev, sizeChange);
@@ -1894,6 +1625,44 @@
     }
     return { x: e.clientX, y: e.clientY };
   }
+  function wrapStyledLines(ctx, text, styleFlags, maxWidth, fontPx) {
+    const lines = [];
+    const paragraphs = text.split("\n");
+    let styleIndex = 0;
+
+    for (const para of paragraphs) {
+      if (para === "") {
+        lines.push("");
+        styleIndex++;
+        continue;
+      }
+
+      const words = para.split(/\s+/);
+      let line = "";
+
+      for (const w of words) {
+        if (!w) continue;
+
+        const test = line ? line + " " + w : w;
+        const testWidth = measureStyledWidth(test, styleFlags, styleIndex, fontPx);
+
+        if (testWidth <= maxWidth) {
+          line = test;
+        } else {
+          if (line) lines.push(line);
+          line = w;
+        }
+
+        // di chuyển styleIndex theo số ký tự đã kiểm tra
+        styleIndex += w.length + 1;
+      }
+
+      if (line) lines.push(line);
+    }
+
+    return lines;
+  }
+
 
   const canvasWrap = document.querySelector('.canvas-wrap');
   if (canvasWrap) {
