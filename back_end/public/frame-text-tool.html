@@ -30,13 +30,8 @@
 
     /* ===== Page layout ===== */
     body{
-      background-image: url('background.png');
       margin:0; padding:16px;
       font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background:
-        radial-gradient(900px 600px at 85% -10%, rgba(220,38,38,0.10), transparent 60%),
-        radial-gradient(900px 600px at 0% 110%, rgba(220,38,38,0.08), transparent 60%),
-        var(--brand-beige);                /* BEIGE is the main background */
       color: var(--ink);
       min-height:100vh;
       display:flex; flex-direction:column; align-items:center; gap:12px;
@@ -202,7 +197,7 @@
     .upload-icon{ font-size:14px; }
     .upload-hint{ font-size:11px; color:#7a5c4b; }
 
-    /* === Layout fix: sidebar trái, canvas phải === */
+    /* === Layout fix: sidebar trái, canvas phải + 1 ảnh background === */
     body {
       display: flex;
       flex-direction: row;
@@ -210,20 +205,19 @@
       gap: 16px;
 
       background-image: url('background2.svg');
-      background-size: cover;         /* <-- NGĂN gấp, fill toàn màn */
-      background-repeat: no-repeat;   /* <-- NGĂN lặp lại ảnh */
-      background-position: center;    /* <-- Căn giữa ảnh */
+      background-size: cover;         /* fill toàn màn */
+      background-repeat: no-repeat;   /* không lặp */
+      background-position: center;    /* căn giữa */
 
       flex-wrap: wrap;
-      min-height: 100vh;              /* <-- tránh body co lại làm ảnh gấp */
+      min-height: 100vh;              /* tránh body co lại làm ảnh gấp */
     }
-
 
     /* Sidebar cố định bề rộng và dính bên trái */
     .sidebar{
       width: 320px;                  /* bề rộng cột trái */
       flex: 0 0 320px;               /* không co giãn */
-      height: calc(100vh - 32px);    /* trừ padding body 16px trên/dưới nếu có */
+      height: calc(100vh - 32px);    /* trừ padding body 16px trên/dưới */
       position: sticky;              /* dính khi cuộn */
       top: 16px;
       overflow: auto;                /* cuộn nội dung nếu dài */
@@ -254,7 +248,7 @@
       height: auto;
     }
 
-    /* === Responsive: dưới 900px thì xếp dọc như mobile (sidebar phía trên là OK) === */
+    /* === Responsive: dưới 900px thì xếp dọc như mobile (sidebar phía trên) === */
     @media (max-width: 900px){
       body{
         flex-direction: column;      /* mobile giữ dọc */
@@ -299,22 +293,23 @@
       display:flex; justify-content:flex-end; align-items:center; gap:10px;
     }
 
-    /* Back link */
-    .back-link{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid var(--brand-red-700);
-      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
-      color:#FFF7F0; text-decoration:none; font-weight:800; font-size:12px;
-      box-shadow: 0 8px 20px rgba(220,38,38,.3);
-      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    /* Back icon-only */
+    .back-icon{
+      display:inline-flex; align-items:center; justify-content:center;
+      width: 36px; height: 36px; border-radius: 999px;
+      background: var(--brand-beige-50);
+      color: var(--brand-red-900);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 16px rgba(220,38,38,.18);
+      text-decoration: none;
+      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
     }
-    .back-link:hover{
-      transform: translateY(-1px); filter: brightness(1.05);
-      box-shadow: 0 12px 28px rgba(220,38,38,.4);
+    .back-icon:hover{
+      background: var(--brand-red); /* nền đỏ khi hover */
+      color: white; /* mũi tên trắng */
+      box-shadow: 0 10px 24px rgba(220,38,38,.35);
+      transform: translateY(-1px);
     }
-    .back-ico{ font-size:14px; line-height:1; }
 
     /* Tiêu đề trung tâm */
     .brand-title{
@@ -335,16 +330,26 @@
       background:#FBE9E7; color: var(--brand-red-700);
     }
 
-    /* Responsive: dưới 900px - Mobile layout dọc */
+    /* Dịch icon MXH sang trái một chút */
+    .header-right {
+      justify-content: flex-end;
+      gap: 8px;
+      margin-right: 60px;
+      transform: translateX(-8px);
+    }
+
+    /* Responsive: dưới 900px - layout dọc + tối ưu mobile */
     @media (max-width: 900px){
-      /* Layout dọc: Header -> Sidebar -> Canvas */
       body{
         display: flex;
         flex-direction: column;
         padding: 8px;
-        gap: 16px;                           /* Tăng gap từ 8px lên 16px */
+        gap: 16px;
         min-height: 100dvh;
         background: url('background2.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
       }
 
       .app-header{
@@ -358,14 +363,14 @@
       .sidebar{
         flex: 0 1 auto;
         width: 100%;
-        max-height: 50vh;                    /* Giới hạn chiều cao để không chiếm hết màn hình */
+        max-height: 50vh;
         overflow-y: auto;
         overflow-x: hidden;
         padding: 14px;
         border-radius: 12px;
         position: relative;
-        -webkit-overflow-scrolling: touch;   /* Smooth scroll trên iOS */
-        margin-bottom: 8px;                  /* Thêm khoảng cách với canvas */
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 8px;
       }
 
       .sidebar::-webkit-scrollbar{
@@ -402,7 +407,7 @@
         width: 100% !important;
         max-width: 100%;
         height: auto !important;
-        touch-action: pan-x pan-y;           /* Cho phép pan/zoom trên mobile */
+        touch-action: pan-x pan-y;
       }
 
       /* Typography - dễ đọc hơn */
@@ -423,9 +428,9 @@
 
       /* Inputs - touch targets lớn hơn */
       select, textarea, input[type="text"], input[type="number"]{
-        font-size: 16px;                     /* Tránh zoom trên iOS */
+        font-size: 16px;
         padding: 12px 14px;
-        min-height: 44px;                    /* Touch target tối thiểu */
+        min-height: 44px;
         border-radius: 10px;
       }
 
@@ -514,13 +519,13 @@
     @media (max-width: 480px){
       body{
         padding: 6px;
-        gap: 12px;                           /* Tăng gap từ 6px lên 12px */
+        gap: 12px;
       }
 
       .sidebar{
         padding: 12px;
         max-height: 45vh;
-        margin-bottom: 6px;                  /* Thêm khoảng cách với canvas */
+        margin-bottom: 6px;
       }
 
       .app-header{
@@ -536,146 +541,7 @@
         font-size: 13px;
       }
     }
-
-    /* Icon-only back button */
-    .back-icon{
-      display:inline-flex; align-items:center; justify-content:center;
-      width: 36px; height: 36px; border-radius: 999px;
-      background: var(--brand-beige-50);
-      color: var(--brand-red-900);
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(220,38,38,.18);
-      text-decoration: none;
-      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
-    }
-    .back-icon:hover{
-      transform: translateY(-1px);
-      background: #FBE9E7;            /* beige sáng hơn */
-      color: var(--brand-red-700);
-      box-shadow: 0 10px 24px rgba(220,38,38,.28);
-    }
-
-    /* Nếu muốn phiên bản nền đỏ (đậm hơn), bỏ comment đoạn dưới và thay class .back-icon-red trong HTML */
-    
-    .back-icon.back-icon-red{
-      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
-      color: #FFF7F0;
-      border-color: var(--brand-red-700);
-    }
-    .back-icon.back-icon-red:hover{
-      filter: brightness(1.05);
-    }
-    /* --- Dịch các icon MXH sang trái --- */
-    .header-right {
-      justify-content: flex-end;
-      gap: 8px;
-      margin-right: 60px; /* hoặc giảm giá trị này nếu muốn dịch ít hơn */
-      transform: translateX(-8px); /* dịch toàn bộ nhóm icon sang trái */
-    }
-
-    /* --- Nút quay về: hover chuyển đỏ, mũi tên trắng --- */
-    .back-icon {
-      background: var(--brand-beige-50);
-      color: var(--brand-red-900);
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(220,38,38,.18);
-      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
-    }
-
-    .back-icon:hover {
-      background: var(--brand-red); /* chuyển nền sang đỏ */
-      color: white; /* mũi tên chuyển trắng */
-      box-shadow: 0 10px 24px rgba(220,38,38,.35);
-      transform: translateY(-1px);
-    }
-
-    /* Mobile nhỏ hơn (dưới 480px) */
-    @media (max-width: 480px){
-      body{
-        padding: 6px;
-        gap: 12px;                           /* Tăng gap từ 6px lên 12px */
-      }
-
-      .sidebar{
-        padding: 12px;
-        max-height: 45vh;
-        margin-bottom: 6px;                  /* Thêm khoảng cách với canvas */
-      }
-
-      .app-header{
-        padding: 6px 8px;
-      }
-
-      h1{
-        font-size: 15px;
-      }
-
-      .btn, .upload-btn{
-        padding: 12px 16px;
-        font-size: 13px;
-      }
-    }
-
-
-    /* Icon-only back button */
-    .back-icon{
-      display:inline-flex; align-items:center; justify-content:center;
-      width: 36px; height: 36px; border-radius: 999px;
-      background: var(--brand-beige-50);
-      color: var(--brand-red-900);
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(220,38,38,.18);
-      text-decoration: none;
-      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
-    }
-    .back-icon:hover{
-      transform: translateY(-1px);
-      background: #FBE9E7;            /* beige sáng hơn */
-      color: var(--brand-red-700);
-      box-shadow: 0 10px 24px rgba(220,38,38,.28);
-    }
-
-    /* Nếu muốn phiên bản nền đỏ (đậm hơn), bỏ comment đoạn dưới và thay class .back-icon-red trong HTML */
-    
-    .back-icon.back-icon-red{
-      background: linear-gradient(180deg, var(--brand-red), var(--brand-red-700));
-      color: #FFF7F0;
-      border-color: var(--brand-red-700);
-    }
-    .back-icon.back-icon-red:hover{
-      filter: brightness(1.05);
-    }
-    /* --- Dịch các icon MXH sang trái --- */
-    .header-right {
-      justify-content: flex-end;
-      gap: 8px;
-      margin-right: 60px; /* hoặc giảm giá trị này nếu muốn dịch ít hơn */
-      transform: translateX(-8px); /* dịch toàn bộ nhóm icon sang trái */
-    }
-
-    /* --- Nút quay về: hover chuyển đỏ, mũi tên trắng --- */
-    .back-icon {
-      background: var(--brand-beige-50);
-      color: var(--brand-red-900);
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 16px rgba(220,38,38,.18);
-      transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
-    }
-
-    .back-icon:hover {
-      background: var(--brand-red); /* chuyển nền sang đỏ */
-      color: white; /* mũi tên chuyển trắng */
-      box-shadow: 0 10px 24px rgba(220,38,38,.35);
-      transform: translateY(-1px);
-    }
-
-   
-
-
-  
   </style>
-
-
 </head>
 <body>
   <header class="app-header">
@@ -758,6 +624,16 @@
         <p>Bạn thấy ___________ có bộc lộ và thể hiện được tính cách - cảm xúc chính của bạn? </p>
         <input id="templateColor" data-template-input type="text" placeholder="Ví dụ: xanh ve chai" />
       </div>
+
+      <div class="template-field">
+        <p>Bạn có cảm thấy lựa chọn này thể hiện đúng tính cách và cảm xúc chính của bạn không?</p>
+        <select id="templateAnswer" data-template-input>
+          <option value="" disabled selected>Chọn câu trả lời</option>
+          <option value="Có">Có</option>
+          <option value="Maybe">Maybe</option>
+          <option value="Không">Không</option>
+        </select>
+      </div>
     </div>
 
     <div class="row">
@@ -810,18 +686,16 @@
       </div>
     </div>
 
-
-
     <button
       class="btn"
       id="downloadBtn"
       style="
         font-family:-apple-system,'Segoe UI',Tahoma,'Helvetica Neue',Arial,'DejaVu Sans',Ubuntu,Cantarell,'Noto Sans',sans-serif;
         font-weight:700; letter-spacing:.02em;
-        display:block;            /* để margin auto có tác dụng */
-        margin:8px auto 0;        /* căn giữa ngang */
-        text-align:center;        /* căn giữa nội dung */
-        align-self:center;        /* nếu parent là flex thì vẫn giữa */
+        display:block;
+        margin:8px auto 0;
+        text-align:center;
+        align-self:center;
       "
     >
       <i class="bi bi-download"></i> Xuất ảnh PNG
@@ -860,7 +734,6 @@
   const overlayInput = document.getElementById("overlayInput");
   const overlayToggleBtn = document.getElementById("overlayToggleBtn");
   const overlayBtnText = document.getElementById("overlayBtnText");
-  const overlayBtnIcon = document.getElementById("overlayBtnIcon");
 
   const downloadBtn = document.getElementById("downloadBtn");
   const FRAME_DEFAULT_COLORS = {
@@ -879,7 +752,9 @@
     unique: document.getElementById("templateUnique"),
     threeWords: document.getElementById("templateThreeWords"),
     color: document.getElementById("templateColor"),
+    answer: document.getElementById("templateAnswer"),
   };
+
   const pageParams = new URLSearchParams(window.location.search);
   const presetColor = pageParams.get("color") || "";
   if (presetColor && templateFieldMap.color && !templateFieldMap.color.value) {
@@ -888,6 +763,7 @@
   templateInputs.forEach((input) => {
     safeAddListener(input, "input", sizeChange);
   });
+
   const imageZoomEl = document.getElementById("imageZoom");
   const zoomImageLabel = document.getElementById("zoomImageLabel");
   const cropControls = document.getElementById("cropControls");
@@ -904,12 +780,10 @@
 
   let overlayImg = null;
   let hasOverlay = false;
-  // --- Thêm biến trạng thái cho ảnh Overlay ---
-  let overlayZoom = 1.0;          // Tỉ lệ zoom của ảnh gốc (1.0 = fit)
-  let overlayOffsetX = 0;         // Dịch chuyển X (px)
-  let overlayOffsetY = 0;         // Dịch chuyển Y (px)
-  // ------------------------------------------
-  
+  // --- Trạng thái ảnh Overlay ---
+  let overlayZoom = 1.0;
+  let overlayOffsetX = 0;
+  let overlayOffsetY = 0;
 
   // ================= HELPERS =================
   function setStatus(msg, error = false) {
@@ -947,6 +821,7 @@
       unique: readTemplateField(templateFieldMap.unique),
       threeWords: readTemplateField(templateFieldMap.threeWords),
       color: readTemplateField(templateFieldMap.color),
+      answer: readTemplateField(templateFieldMap.answer),
     };
   }
 
@@ -990,12 +865,18 @@
           text: 'Bạn thấy ',
           bold: false,
         },
-        
         createValueSegment(values.color),
         {
-          text: ' có bộc lộ và thể hiện được tính cách - cảm xúc chính của bạn?'
+          text: ' có bộc lộ và thể hiện được tính cách - cảm xúc chính của bạn?',
+          bold: false,
         }
       ],
+      [
+        {
+          text: values.answer,
+          bold: true,
+        }
+      ]
     ];
   }
 
@@ -1025,7 +906,6 @@
   function getTemplatePlainText() {
     return buildTemplateRenderData().text;
   }
-
 
   function getEditorAlign() {
     return "left";
@@ -1062,7 +942,7 @@
     return lines;
   }
 
-  function computeFittedLines(text, boxPx, padding, lineH) {
+  function computeFittedLines(text, boxPx, padding, lineH, styleFlags) {
     const START_FONT = 20;
     const MIN_FONT = 14;
     let fontPx = START_FONT;
@@ -1085,7 +965,7 @@
 
     ctx.font = `normal 400 ${MIN_FONT}px ${FONT_FAMILY}`;
     const maxWidth = Math.max(0, boxPx.w - padding * 2);
-    lines = wrapStyledLines(ctx, text, styleFlags, maxWidth, fontPx);
+    lines = wrapStyledLines(ctx, text, styleFlags, maxWidth, MIN_FONT);
     return { fontPx: MIN_FONT, lines, lh: lineH * MIN_FONT };
   }
 
@@ -1108,14 +988,12 @@
       overlayToggleBtn.style.background = "linear-gradient(180deg, var(--brand-red), var(--brand-red-700))";
       overlayToggleBtn.style.color = "#fff";
       
-      // Hiển thị crop controls
       if (cropControls) cropControls.style.display = "block";
     } else {
       overlayBtnText.innerHTML = '<i class="bi bi-camera-fill"></i> Chọn ảnh';
       overlayToggleBtn.style.background = "var(--brand-beige-50)";
       overlayToggleBtn.style.color = "var(--brand-red-900)";
       
-      // Ẩn crop controls
       if (cropControls) cropControls.style.display = "none";
     }
   }
@@ -1173,30 +1051,27 @@
     ctx.fillRect(imagePx.x, imagePx.y, imagePx.w, imagePx.h);
 
     if (overlayImg && hasOverlay) {
-      // Tính kích thước gốc của ảnh dùng cover mode (ảnh phủ đầy khung)
       const ir2 = overlayImg.width / overlayImg.height;
       const br = imagePx.w / imagePx.h;
       let initialW, initialH, initialX, initialY;
 
-      if (ir2 > br) { // ảnh rộng hơn khung
+      if (ir2 > br) {
         initialH = imagePx.h;
         initialW = initialH * ir2;
         initialX = imagePx.x - (initialW - imagePx.w) / 2;
         initialY = imagePx.y;
-      } else { // ảnh cao hơn khung
+      } else {
         initialW = imagePx.w;
         initialH = initialW / ir2;
         initialX = imagePx.x;
         initialY = imagePx.y - (initialH - imagePx.h) / 2;
       }
 
-      // Áp dụng zoom (phóng to/thu nhỏ từ tâm)
       const zoomedW = initialW * overlayZoom;
       const zoomedH = initialH * overlayZoom;
       const zoomCenterX = initialX + initialW / 2;
       const zoomCenterY = initialY + initialH / 2;
 
-      // Vẽ ảnh với zoom và pan (kéo)
       const drawX = zoomCenterX - zoomedW / 2 + overlayOffsetX;
       const drawY = zoomCenterY - zoomedH / 2 + overlayOffsetY;
 
@@ -1231,7 +1106,7 @@
       ctx.restore();
     }
 
-            // ===== Vẽ text =====
+    // ===== Vẽ text =====
     const padding = parseFloat(paddingEl?.value) || 0;
 
     let rawLH = parseFloat(lineHeightEl?.value);
@@ -1241,7 +1116,7 @@
     const renderData = buildTemplateRenderData();
     const plain = renderData.text;
     const styleFlags = renderData.styles;
-    const fit = computeFittedLines(plain, textPx, padding, lineH);
+    const fit = computeFittedLines(plain, textPx, padding, lineH, styleFlags);
 
     ctx.textBaseline = "top";
     const resolvedTextColor = currentLayout.textColor || currentLayout.imageBorderColor || "#333";
@@ -1263,7 +1138,6 @@
     );
 
     ctx.clip();
-
 
     let ty = textPx.y + padding;
     const align = getEditorAlign();
@@ -1320,13 +1194,61 @@
       // Update index & dòng
       styleIndex += lineText.length + 1; 
       ty += fit.lh;
-  }
-
+    }
 
     ctx.restore();
   }
 
-// ================= LOAD FRAMES FROM API =================
+  // ===== Hỗ trợ wrap theo style (dùng khi text quá dài) =====
+  function measureStyledWidth(text, styleFlags, startIndex, fontPx) {
+    let width = 0;
+    for (let i = 0; i < text.length; i++) {
+      const isBold = styleFlags[startIndex + i];
+      ctx.font = `${isBold ? "600" : "400"} ${fontPx}px ${FONT_FAMILY}`;
+      width += ctx.measureText(text[i]).width;
+    }
+    return width;
+  }
+
+  function wrapStyledLines(ctx, text, styleFlags, maxWidth, fontPx) {
+    const lines = [];
+    const paragraphs = text.split("\n");
+    let styleIndex = 0;
+
+    for (const para of paragraphs) {
+      if (para === "") {
+        lines.push("");
+        styleIndex++;
+        continue;
+      }
+
+      const words = para.split(/\s+/);
+      let line = "";
+
+      for (const w of words) {
+        if (!w) continue;
+
+        const test = line ? line + " " + w : w;
+        const testWidth = measureStyledWidth(test, styleFlags, styleIndex, fontPx);
+
+        if (testWidth <= maxWidth) {
+          line = test;
+        } else {
+          if (line) lines.push(line);
+          line = w;
+        }
+
+        // di chuyển styleIndex theo số ký tự đã kiểm tra
+        styleIndex += w.length + 1;
+      }
+
+      if (line) lines.push(line);
+    }
+
+    return lines;
+  }
+
+  // ================= LOAD FRAMES FROM API =================
   const FRAME_API_BASE = "/api/frame-layout";
   const TEMPLATE_API_BASE = "/api/templates";
 
@@ -1480,8 +1402,6 @@
     sizeChange();
   });
 
-  // Template inputs trigger render via listeners registered near the top
-
   // auto render khi thay đổi text / lineHeight / padding / exportSize
   ["input", "change"].forEach((ev) => {
     safeAddListener(lineHeightEl, ev, sizeChange);
@@ -1505,7 +1425,6 @@
       const zoomPercent = parseInt(imageZoomEl.value, 10);
       zoomImageLabel.textContent = zoomPercent;
       overlayZoom = zoomPercent / 100;
-      // Clamp offset khi zoom thay đổi (vì giới hạn thay đổi theo zoom)
       clampImageOffset();
       sizeChange();
     };
@@ -1515,13 +1434,11 @@
 
   // nút reset ảnh
   safeAddListener(resetImageBtn, "click", () => {
-    // Reset zoom về 100%
     if (imageZoomEl) {
       imageZoomEl.value = 100;
       overlayZoom = 1.0;
       if (zoomImageLabel) zoomImageLabel.textContent = "100";
     }
-    // Reset offset về (0, 0)
     overlayOffsetX = 0;
     overlayOffsetY = 0;
     sizeChange();
@@ -1551,7 +1468,6 @@
       img.onload = () => {
         overlayImg = img;
         hasOverlay = true;
-        // Reset offset về 0 khi upload ảnh mới (ảnh sẽ ở vị trí mặc định)
         overlayOffsetX = 0;
         overlayOffsetY = 0;
         updateOverlayButton();
@@ -1569,7 +1485,6 @@
   let dragStartOffsetX = 0;
   let dragStartOffsetY = 0;
 
-  // Hàm tính giới hạn offset để ảnh không kéo ra ngoài khung
   function clampImageOffset(targetSize = BASE_SIZE) {
     if (!overlayImg || !currentLayout) return;
 
@@ -1577,7 +1492,6 @@
     const ir2 = overlayImg.width / overlayImg.height;
     const br = imagePx.w / imagePx.h;
     
-    // Tính kích thước ban đầu (cover mode)
     let initialW, initialH;
     if (ir2 > br) {
       initialH = imagePx.h;
@@ -1587,86 +1501,37 @@
       initialH = initialW / ir2;
     }
 
-    // Kích thước sau khi zoom
     const zoomedW = initialW * overlayZoom;
     const zoomedH = initialH * overlayZoom;
 
-    // Tính giới hạn offset
-    // Nếu ảnh lớn hơn khung: có thể kéo trong phạm vi
-    // Nếu ảnh nhỏ hơn khung: không thể kéo (offset = 0)
-    
     let minOffsetX, maxOffsetX;
     if (zoomedW > imagePx.w) {
-      // Ảnh lớn hơn khung: có thể kéo
       maxOffsetX = (zoomedW - imagePx.w) / 2;
       minOffsetX = -maxOffsetX;
     } else {
-      // Ảnh nhỏ hơn khung: không thể kéo, phải ở giữa
       minOffsetX = 0;
       maxOffsetX = 0;
     }
 
     let minOffsetY, maxOffsetY;
     if (zoomedH > imagePx.h) {
-      // Ảnh lớn hơn khung: có thể kéo
       maxOffsetY = (zoomedH - imagePx.h) / 2;
       minOffsetY = -maxOffsetY;
     } else {
-      // Ảnh nhỏ hơn khung: không thể kéo, phải ở giữa
       minOffsetY = 0;
       maxOffsetY = 0;
     }
 
-    // Clamp offset về trong giới hạn
     overlayOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, overlayOffsetX));
     overlayOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, overlayOffsetY));
   }
 
-  // Helper function để lấy tọa độ từ mouse hoặc touch event
   function getEventCoords(e) {
     if (e.touches && e.touches.length > 0) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
     return { x: e.clientX, y: e.clientY };
   }
-  function wrapStyledLines(ctx, text, styleFlags, maxWidth, fontPx) {
-    const lines = [];
-    const paragraphs = text.split("\n");
-    let styleIndex = 0;
-
-    for (const para of paragraphs) {
-      if (para === "") {
-        lines.push("");
-        styleIndex++;
-        continue;
-      }
-
-      const words = para.split(/\s+/);
-      let line = "";
-
-      for (const w of words) {
-        if (!w) continue;
-
-        const test = line ? line + " " + w : w;
-        const testWidth = measureStyledWidth(test, styleFlags, styleIndex, fontPx);
-
-        if (testWidth <= maxWidth) {
-          line = test;
-        } else {
-          if (line) lines.push(line);
-          line = w;
-        }
-
-        // di chuyển styleIndex theo số ký tự đã kiểm tra
-        styleIndex += w.length + 1;
-      }
-
-      if (line) lines.push(line);
-    }
-
-    return lines;
-  }
-
 
   const canvasWrap = document.querySelector('.canvas-wrap');
   if (canvasWrap) {
@@ -1684,10 +1549,8 @@
       e.preventDefault();
     });
 
-    // Helper function để tính scale dựa trên canvas thực tế
     function calculateScale() {
       const previewZoom = parseInt(previewZoomEl?.value || "70", 10) / 100;
-      // Lấy kích thước thực tế của canvas trên màn hình
       const canvasRect = canvas.getBoundingClientRect();
       const canvasDisplayWidth = canvasRect.width || (520 * previewZoom);
       return BASE_SIZE / canvasDisplayWidth;
@@ -1701,13 +1564,10 @@
       const deltaX = (coords.x - dragStartX) * scale;
       const deltaY = (coords.y - dragStartY) * scale;
 
-      // Cập nhật offset tạm thời
       overlayOffsetX = dragStartOffsetX + deltaX;
       overlayOffsetY = dragStartOffsetY + deltaY;
 
-      // Giới hạn offset trong vùng khung ảnh
       clampImageOffset();
-
       sizeChange();
     });
 
@@ -1721,7 +1581,7 @@
     // Touch events (mobile)
     canvasWrap.addEventListener('touchstart', (e) => {
       if (!hasOverlay || !currentLayout) return;
-      if (e.touches.length !== 1) return; // Chỉ xử lý single touch
+      if (e.touches.length !== 1) return;
       
       isDragging = true;
       const coords = getEventCoords(e);
@@ -1729,7 +1589,7 @@
       dragStartY = coords.y;
       dragStartOffsetX = overlayOffsetX;
       dragStartOffsetY = overlayOffsetY;
-      e.preventDefault(); // Ngăn scroll khi drag
+      e.preventDefault();
     }, { passive: false });
 
     canvasWrap.addEventListener('touchmove', (e) => {
@@ -1741,18 +1601,15 @@
       const deltaX = (coords.x - dragStartX) * scale;
       const deltaY = (coords.y - dragStartY) * scale;
 
-      // Cập nhật offset tạm thời
       overlayOffsetX = dragStartOffsetX + deltaX;
       overlayOffsetY = dragStartOffsetY + deltaY;
 
-      // Giới hạn offset trong vùng khung ảnh
       clampImageOffset();
-
       sizeChange();
-      e.preventDefault(); // Ngăn scroll khi drag
+      e.preventDefault();
     }, { passive: false });
 
-    canvasWrap.addEventListener('touchend', (e) => {
+    canvasWrap.addEventListener('touchend', () => {
       if (isDragging) {
         isDragging = false;
       }
@@ -1791,10 +1648,8 @@
     const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
     const isInApp  = /(FBAN|FBAV|FB_IAB|FB4A|Instagram|Messenger)/i.test(ua);
 
-    // xuất JPEG cho mobile/in-app
     const dataUrlJpeg = canvas.toDataURL("image/jpeg", 0.92);
 
-    // In-app (Messenger / FB / IG): mở trang chỉ có ảnh
     if (isInApp) {
       const html =
         '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -1817,7 +1672,6 @@
       return;
     }
 
-    // iOS Safari: mở ảnh riêng để long-press lưu
     if (isIOS && isSafari) {
       const win = window.open();
       if (win) {
@@ -1837,7 +1691,6 @@
       return;
     }
 
-    // Desktop + đa số Android browser: tải file bình thường
     canvas.toBlob((blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
@@ -1854,7 +1707,6 @@
 
   // ================= INIT =================
   function sizeChange() {
-    // Render preview theo kích thước gốc BASE_SIZE
     render(BASE_SIZE);
   }
 
@@ -1872,9 +1724,5 @@
     window.addEventListener("resize", sizeChange);
   })();
 </script>
-
-
-
-
 </body>
 </html>
